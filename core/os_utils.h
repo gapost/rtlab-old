@@ -2,10 +2,13 @@
 #define OS_UTILS_H
 
 // currently only windows implementation
+#ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmsystem.h>
+
+namespace os {
 
 // a win32 critical section
 
@@ -63,7 +66,7 @@ private:
     }
 
 public:
-    win32stopwatch() :  running_(false), start_time_(0), total_(0)
+    stopwatch() :  running_(false), start_time_(0), total_(0)
     {
         QueryPerformanceFrequency((LARGE_INTEGER*)&counts_per_sec_);
     }
@@ -136,7 +139,7 @@ public:
 };
 
 template<class Functor>
-class os_timer
+class timer
 {
 private:
     unsigned int timerId;
@@ -149,16 +152,16 @@ private:
         dw1 = dw1;
         dw2 = dw2;
         Functor* f = reinterpret_cast<Functor*>(dwUser);
-        if (f) f->timerProc();
+        if (f) (*f)();
     }
 
 public:
 
-    win32timer() : timerId(0)
+    timer() : timerId(0)
     {
         timeBeginPeriod(1U);
     }
-    virtual ~win32timer()
+    virtual ~timer()
     {
         stop();
         timeEndPeriod(1U);
@@ -180,5 +183,9 @@ public:
     }
     bool is_running() const { return timerId != 0; }
 };
+
+} // namespace os
+
+#endif // _WIN32
 
 #endif // WIN32UTILS_H
