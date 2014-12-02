@@ -11,7 +11,8 @@ TEMPLATE = lib
 CONFIG += staticlib
 CONFIG	 -= qt
 
-include ( ni6602.pri )
+include ( ../rtlab.pri )
+
 
 SOURCES += \
     DigIO.cpp \
@@ -24,6 +25,4 @@ HEADERS += ni6602.h \
     device.h \
     Counter.h
 
-OTHER_FILES += \
-    ni6602.pri
 

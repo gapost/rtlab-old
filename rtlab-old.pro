@@ -3,4 +3,7 @@ CONFIG += ordered
 
 SUBDIRS += \
     core \
-    ni6602
+    ni6602 \
+    wago_mbt \
+    dev \
+    app

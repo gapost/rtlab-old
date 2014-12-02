@@ -68,7 +68,8 @@ SOURCES += \
     RtSession.cpp \
     RtScriptJob.cpp \
     RtDelegates.cpp \
-    objectcontroller.cpp
+    objectcontroller.cpp \
+    RtRootSerialize.cpp
 
 FORMS = ChannelWidget.ui
 
