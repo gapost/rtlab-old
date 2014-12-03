@@ -19,7 +19,9 @@ SOURCES += RtDev.cpp \
     RtPowerSupply.cpp \
     RtTemperatureController.cpp \
     RtResistanceController.cpp \
-    RtNiGpib.cpp
+    RtNiGpib.cpp \
+    Rt6602.cpp \
+    RtAxis.cpp
 
 HEADERS += RtDev.h \
     RtDevice.h \
@@ -31,7 +33,9 @@ HEADERS += RtDev.h \
     RtResistanceController.h \
     isa_pid.h \
     relaytuner.h \
-    RtNiGpib.h
+    RtNiGpib.h \
+    Rt6602.h \
+    RtAxis.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lRtCore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../core/debug/ -lRtCore

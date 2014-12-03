@@ -7,6 +7,8 @@
 #include "RtPowerSupply.h"
 #include "RtTemperatureController.h"
 #include "RtResistanceController.h"
+#include "Rt6602.h"
+#include "RtAxis.h"
 
 
 RtAcquisition::RtAcquisition(const QString& name, RtObject* parent) :
@@ -21,7 +23,9 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 		"Valid types are:\n"
 		"  \"RS232\", Standard serial communications\n"
 		"  \"TCPIP\", Standard Tcp/Ip communications\n"
-		"  \"NI-GPIB\", National Instr. GPIB card\n";
+        "  \"NI-GPIB\", National Instr. GPIB card\n"
+        "  \"MODBUS-TCP\", Modbus over Tcp/Ip communications\n"
+        "  \"PCI6602\", National Instr. PCI-6602 counter card";
 
 	// check name
 	if (!checkName(name)) return;
@@ -30,7 +34,9 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	int idx = -1;
 	if      (type=="RS232") idx=0;
 	else if (type=="NI-GPIB") idx=1;
-	else if (type=="TCPIP") idx=2;
+	else if (type=="TCPIP") idx=2;    
+    else if (type=="PCI6602") idx=3;
+    else if (type=="MODBUS-TCP") idx=4;
 	else
 	{
 		throwScriptError(InvalidTypeMsg);
@@ -48,8 +54,14 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 		break;
 	case 2:
 		dev = new RtTcpip(name,this);
-		break;
-	}
+        break;
+    case 4:
+        dev = new RtModbusTcp(name,this);
+        break;
+    case 3:
+        dev = new Rt6602(name,this,addr);
+        break;
+    }
 	createScriptObject(dev);
 }
 
@@ -65,7 +77,8 @@ void RtAcquisition::newDevice(const QString& name, RtInterface* ifc, int addr, c
 		"  \"KepcoBop\", Kepco BOP power supply\n"
 		"  \"KepcoDps\", Kepco DPS power supply\n"		
 		"  \"ResistanceController\", based on Kepco BOP power supply\n"
-		"  No model given: generic device";
+        "  \"Axis\", Axis controller\n"
+        "  No model given: generic device";
 
 
 	// check name
@@ -89,7 +102,8 @@ void RtAcquisition::newDevice(const QString& name, RtInterface* ifc, int addr, c
 		else if (model=="KepcoBop") modelIdx=5;
 		else if (model=="ResistanceController") modelIdx=6;
 		else if (model=="KepcoDps") modelIdx=7;
-		else
+        else if (model=="Axis") modelIdx=8;
+        else
 		{
 			throwScriptError(InvalidModelMsg);
 			return;
@@ -123,7 +137,10 @@ void RtAcquisition::newDevice(const QString& name, RtInterface* ifc, int addr, c
 	case 7:
 		dev = new RtKepcoDps(name,this,ifc,addr);
 		break;	
-	}
+    case 8:
+        dev = new RtAxis(name,"Axis Controller",this,ifc,addr);
+        break;
+    }
 	if (dev) createScriptObject(dev);
 }
 

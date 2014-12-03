@@ -225,6 +225,28 @@ protected:
 	virtual void close_();
 };
 
+class RtModbusTcp : public RtTcpip
+{
+    Q_OBJECT
+
+protected:
+    modbus mbus_;
+
+    static uint modbusClient_;
+
+public:
+    RtModbusTcp(const QString& name, RtObject* parent, const QString& ahost = QString(), uint portno = 0);
+    virtual ~RtModbusTcp();
+
+    // io
+    virtual int read(uint port, char* buff, int len, int eos = 0);
+    virtual int write(uint port, const char* buff, int len, int eos = 0);
+
+protected:
+    virtual bool open_();
+    virtual void close_();
+};
+
 #endif
 
 

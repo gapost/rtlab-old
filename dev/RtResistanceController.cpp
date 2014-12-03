@@ -97,7 +97,7 @@ void RtResistanceController::run()
 	// go through pid
 	pid(Rs_, R, W_, auto_ && !autotune_);
 	I_ = sqrt(W_);
-	if (Rs_==0. || I_ < Io) I_ = Io;
+    if (Rs_==0. || I_ < fabs(Io)) I_ = Io;
 	setCurrent_(I_);
 	W_ = I_*I_;
 
@@ -132,7 +132,7 @@ void RtResistanceController::setMaxPower(double v)
 void RtResistanceController::setOffsetCurrent(double v) 
 { 
 	os::auto_lock L(comm_lock);
-	Io=fabs(v); 
+    Io=v;
 	emit propertiesChanged();
 }
 void RtResistanceController::setPower(double v)

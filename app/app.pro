@@ -55,3 +55,26 @@ DEPENDPATH += $$PWD/../dev
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../dev/release/RtDev.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../dev/debug/RtDev.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../dev/libRtDev.a
+
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../wago_mbt/release/ -lwago_mbt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../wago_mbt/debug/ -lwago_mbt
+
+INCLUDEPATH += $$PWD/../wago_mbt
+DEPENDPATH += $$PWD/../wago_mbt
+
+win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/release/wago_mbt.lib
+else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/debug/wago_mbt.lib
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../ni6602/release/ -lni6602
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../ni6602/debug/ -lni6602
+else:unix: LIBS += -L$$OUT_PWD/../ni6602/ -lni6602
+
+INCLUDEPATH += $$PWD/../ni6602
+DEPENDPATH += $$PWD/../ni6602
+
+win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../ni6602/release/ni6602.lib
+else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../ni6602/debug/ni6602.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../ni6602/libni6602.a

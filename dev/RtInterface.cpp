@@ -350,6 +350,88 @@ void RtTcpip::close_()
 	socket_.close();
 }
 
+//**********************************************************************//
+uint RtModbusTcp::modbusClient_;
+
+RtModbusTcp::RtModbusTcp(const QString& name, RtObject* parent, const QString& host, uint portn) :
+RtTcpip(name, parent, host, portn)
+{
+    if (modbusClient_==0) MBTInit();
+    modbusClient_++;
+}
+
+RtModbusTcp::~RtModbusTcp(void)
+{
+    modbusClient_--;
+    if (modbusClient_==0) MBTExit();
+}
+
+int RtModbusTcp::read(uint port, char* buff, int len, int eos)
+{
+    os::auto_lock L(comm_lock);
+
+
+    if (!mbus_.connected()) return 0;
+
+    eos=eos;
+    WORD addr = (WORD)port;
+    WORD* ptr = (WORD*)buff;
+    WORD sz = (len/2) + (len%2);
+    int ret = mbus_.readOutputRegister(addr,sz,ptr);
+    if (ret)
+    {
+        pushError("readOutputRegister", QString("Ret=0x%1").arg(ret,0,16));
+        return 0;
+    }
+    else return len;
+}
+
+int RtModbusTcp::write(uint port, const char* buff, int len, int eos)
+{
+    os::auto_lock L(comm_lock);
+
+    if (!mbus_.connected()) return 0;
+
+    eos=eos;
+    WORD addr = (WORD)port;
+    WORD* ptr = (WORD*)buff;
+    WORD sz = (len/2) + (len%2);
+    int ret = mbus_.writeRegister(addr,sz,ptr);
+    if (ret)
+    {
+        pushError("writeRegister", QString("Ret=0x%1").arg(ret,0,16));
+        return 0;
+    }
+    else return len;
+}
+
+bool RtModbusTcp::open_()
+{
+    if (isOpen() && mbus_.connected()) return true;
+    os::auto_lock L(comm_lock);
+
+    mbus_.connect(host_.toString().toStdString(),port_,true,timeout_);
+
+    if (!(isOpen_=mbus_.connected()))
+    {
+        mbus_.disconnect();
+        pushError("Open Modbus tcp failed!");
+
+    }
+    emit propertiesChanged();
+
+    return isOpen();
+}
+
+void RtModbusTcp::close_()
+{
+    os::auto_lock L(comm_lock);
+    RtInterface::close_();
+    mbus_.disconnect();
+}
+
+
+
 
 
 
