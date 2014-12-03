@@ -10,9 +10,9 @@ DEPENDPATH += $$PWD/../wago_modbus_tcp/include
 ############## NI-DAQ ##############
 
 win32 {
-    LIBS += -L$$PWD/../ni-daq/Lib/ -lnidaq32
-    INCLUDEPATH += $$PWD/../ni-daq/Include
-    DEPENDPATH += $$PWD/../ni-daq/Include
+    LIBS += -L$$PWD/../ni-daq-8.6/Lib/ -lnidaq32
+    INCLUDEPATH += $$PWD/../ni-daq-8.6/Include
+    DEPENDPATH += $$PWD/../ni-daq-8.6/Include
 }
 
 ############## NI-488.2 ##############
