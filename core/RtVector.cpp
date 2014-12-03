@@ -259,8 +259,9 @@ QString RtVector::toStringList(QChar sep) const
 }
 RtDoubleVector RtVector::toArray() const
 {
-	RtDoubleVector S(v_.size());
-	for(int i=0; i<v_.size(); ++i) S[i] = v_[i];
+    int sz = v_.size();
+    RtDoubleVector S(sz);
+    for(int i=0; i<sz; ++i) S[i] = v_[i];
 	return S;
 }
 void RtVector::push(double v) 

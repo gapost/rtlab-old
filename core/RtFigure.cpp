@@ -130,7 +130,7 @@ RtFigureItem(name,"Rt Figure",parent)
 		{
 			RtPlotWidget* plotWidget = new RtPlotWidget(widget_);
 			RtFigure* fig = new RtFigure(QString("fig%1").arg(k++),this,plotWidget);
-			layout->addWidget(plotWidget,i,j);
+            layout->addWidget(plotWidget,i,j);
 		}
 	}
 	widget_->setLayout(layout);

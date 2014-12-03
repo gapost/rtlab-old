@@ -4,11 +4,9 @@
 #include <QCoreApplication>
 #include <QSet>
 #include <QDateTime>
-#include <QPointF>
-#include <QRectF>
 
 #include <qwt_plot_curve.h>
-#include <qwt_series_data.h>
+#include <qwt_data.h>
 #include <qwt_scale_draw.h>
 #include <qwt_plot_grid.h>
 #include <qwt_scale_engine.h>
@@ -19,21 +17,18 @@
 
 #include <math.h>
 
-//#define QwtDoublePoint QPointF
-//#define QwtDoubleRect QRectF
-
-class QwtPlotCanvas;
+// #define QwtDoublePoint QPointF
 
 class FormattedPicker : public QwtPlotPicker
 {
 public:
-    FormattedPicker(int xAxis, int yAxis, //int selectionFlags,
+	FormattedPicker(int xAxis, int yAxis, int selectionFlags, 
         RubberBand rubberBand, DisplayMode trackerMode, 
-        QWidget *pc) : QwtPlotPicker(xAxis,yAxis,rubberBand,trackerMode,pc) // selectionFlags,
+		QwtPlotCanvas *pc) : QwtPlotPicker(xAxis,yAxis,selectionFlags,rubberBand,trackerMode,pc)
 	{
 	}
 protected:
-    virtual QwtText trackerText	(	const QPointF & 	pos	 ) 	 const
+	virtual QwtText trackerText	(	const QwtDoublePoint & 	pos	 ) 	 const 
 	{
 		QwtText lx = plot()->axisScaleDraw(QwtPlot::xBottom)->label(pos.x());
 		QwtText ly = plot()->axisScaleDraw(QwtPlot::yLeft)->label(pos.y());
@@ -47,7 +42,7 @@ protected:
 class Zoomer: public QwtPlotZoomer
 {
 public:
-    Zoomer(int xAxis, int yAxis, QWidget *canvas):
+    Zoomer(int xAxis, int yAxis, QwtPlotCanvas *canvas):
         QwtPlotZoomer(xAxis, yAxis, canvas)
     {
 		//setMaxStackDepth(1);	
@@ -61,7 +56,7 @@ protected:
 		{
 			setZoomBase(false);
 
-            const QRectF &rect = this->scaleRect();
+			const QwtDoubleRect &rect = this->scaleRect();
 			QwtPlot *plt = plot();
 			if (plt->axisAutoScale(QwtPlot::xBottom))
 			{
@@ -140,7 +135,7 @@ public:
 };
 
 
-class RtPlotData : public QwtSeriesData< QPointF >
+class RtPlotData : public QwtData
 {
 	const RtVector& vx;
 	const RtVector& vy;
@@ -161,7 +156,7 @@ public:
 	{
 	}
 
-    virtual QwtSeriesData< QPointF > *copy() const
+	virtual QwtData *copy() const 
 	{
 		RtPlotData* cc = new RtPlotData(*this);
 		return cc; 
@@ -169,21 +164,16 @@ public:
 
 	virtual size_t size() const { return sz; }
 
-    double x(size_t i) const { return vx[i]; }
-    double y(size_t i) const { return vy[i]; }
-    virtual QPointF sample( size_t i ) const
-    {
-        QPointF p(x(i),y(i));
-        return p;
-    }
+	virtual double x(size_t i) const { return vx[i]; }
+	virtual double y(size_t i) const { return vy[i]; }
 
-    virtual QRectF boundingRect() const
+    virtual QwtDoubleRect boundingRect() const
 	{
 		double x1,x2,y1,y2;
 		const_cast<RtPlotData*>(this)->sz = qMin(vx.size(),vy.size());
 		vx.calcBounds(x1,x2);
 		vy.calcBounds(y1,y2);
-        return QRectF(x1,y1,x2-x1,y2-y1);
+		return QwtDoubleRect(x1,y1,x2-x1,y2-y1); 
 	}
 
 	void update(const RtPlotWidget* w, const RtVector* v)
@@ -224,7 +214,7 @@ RtPlotWidget::RtPlotWidget(QWidget* parent) : QwtPlot(parent), id_(0)
 
 
 	grid = new QwtPlotGrid;
-    grid->setMajorPen(QPen(Qt::gray, 0, Qt::DotLine));
+    grid->setMajPen(QPen(Qt::gray, 0, Qt::DotLine));
     //grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
     grid->attach(this);
 
@@ -234,7 +224,7 @@ RtPlotWidget::RtPlotWidget(QWidget* parent) : QwtPlot(parent), id_(0)
 	zoomer = new Zoomer( QwtPlot::xBottom, QwtPlot::yLeft, canvas());
     zoomer->setRubberBand(QwtPicker::RectRubberBand);
     zoomer->setRubberBandPen(QPen(Qt::darkGray,0,Qt::DashLine));
-    //zoomer->setSelectionFlags(QwtPicker::DragSelection | QwtPicker::CornerToCorner);
+    zoomer->setSelectionFlags(QwtPicker::DragSelection | QwtPicker::CornerToCorner);
     zoomer->setTrackerMode(QwtPicker::AlwaysOff);
 
         // RightButton: zoom out by 1
@@ -250,7 +240,7 @@ RtPlotWidget::RtPlotWidget(QWidget* parent) : QwtPlot(parent), id_(0)
 	panner->setMouseButton(Qt::LeftButton,Qt::ShiftModifier);
 
     picker = new FormattedPicker(QwtPlot::xBottom, QwtPlot::yLeft,
-        //QwtPicker::PointSelection | QwtPicker::DragSelection,
+        QwtPicker::PointSelection | QwtPicker::DragSelection, 
         QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, 
         canvas());
     picker->setRubberBand(QwtPicker::CrossRubberBand);
@@ -297,7 +287,7 @@ void RtPlotWidget::plot(const RtVector& x, const RtVector& y)
 	};
 
 	QwtPlotCurve* curve = new QwtPlotCurve;
-    curve->setData(new RtPlotData(x,y));
+	curve->setData(RtPlotData(x,y));
 	
     curve->setPen(QPen(QColor(eight_colors[id_++ & 0x07])));
 	
@@ -343,7 +333,7 @@ void RtPlotWidget::onVectorUpdated(const RtVector* v)
 	// update curves
 	foreach(QwtPlotCurve* curve, curves)
 	{
-        RtPlotData* data = (RtPlotData*)(curve->data());
+		RtPlotData* data = (RtPlotData*)&(curve->data());
 		data->update(this,v);
 		curve->itemChanged();
 	}

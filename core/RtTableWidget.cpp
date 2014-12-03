@@ -84,7 +84,7 @@ public:
 			if (j<V.size()) 
 			{
 				const RtVector& v = *(V[j]);
-				if (i<v.size())
+                if ( i<(int)(v.size()) )
 				{
 					retval.setValue(
 						v.time() ? RtTimeValue(v[i]).toString() : QString::number(v[i],'f',12)
