@@ -6,7 +6,7 @@
 
 include ( ../rtlab.pri )
 
-include(../../qtpropertybrowser/src/qtpropertybrowser.pri)
+include(../../3rdparty/qtpropertybrowser/src/qtpropertybrowser.pri)
 
 
 TARGET = RtCore
