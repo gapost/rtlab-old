@@ -38,8 +38,8 @@ INCLUDEPATH += $$PWD/../3rdparty/hdf5-1.8.10/include
 LIBS += -L$$PWD/../3rdparty/hdf5-1.8.10/lib -lhdf5dll -lhdf5_cppdll
 
 ############## muParser ##############
-INCLUDEPATH += $$PWD/../3rdparty/muparser_v2_2_3/include
-LIBS += -L$$PWD/../3rdparty/muparser_v2_2_3/lib/
+INCLUDEPATH += $$PWD/../muparser_v2_2_3/include
+LIBS += -L$$PWD/../muparser_v2_2_3/lib/
 CONFIG(debug, debug|release) {
     LIBS += -lmuparserd
 } else {
