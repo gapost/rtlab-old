@@ -6,4 +6,5 @@ SUBDIRS += \
     ni6602 \
     wago_mbt \
     dev \
-    app
+    app \
+    timetest
