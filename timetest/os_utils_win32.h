@@ -1,8 +1,5 @@
-#ifndef OS_UTILS_H
-#define OS_UTILS_H
-
-// currently only windows implementation
-#ifdef _WIN32
+#ifndef OS_UTILS_WIN32_H
+#define OS_UTILS_WIN32_H
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -186,6 +183,5 @@ public:
 
 } // namespace os
 
-#endif // _WIN32
 
 #endif // WIN32UTILS_H

@@ -1,44 +1,7 @@
-#ifndef OS_UTILS_H
-#define OS_UTILS_H
-
-// currently only windows implementation
-#ifdef _WIN32
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <mmsystem.h>
+#ifndef OS_UTILS_LINUX_H
+#define OS_UTILS_LINUX_H
 
 namespace os {
-
-// a win32 critical section
-
-/**
- * @brief A critical section for thread syncronization
- *
- */
-class critical_section
-{
-public:
-        critical_section()  { InitializeCriticalSection(&section); }
-        ~critical_section() { DeleteCriticalSection(&section); }
-        void lock()         { EnterCriticalSection(&section); }
-        void unlock()       { LeaveCriticalSection(&section); }
-
-private:
-        CRITICAL_SECTION section;
-};
-
-// locks a critical section, and unlocks it automatically
-// when the lock goes out of scope
-class auto_lock
-{
-public:
-    auto_lock(critical_section& cs) : cs_(cs) { cs_.lock(); }
-    ~auto_lock() { cs_.unlock(); };
-
-private:
-    critical_section& cs_;
-};
 
 
 /**
