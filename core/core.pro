@@ -46,6 +46,9 @@ HEADERS += \
     RtDelegates.h \
     objectcontroller.h
 
+win32: HEADERS += os_util_win32.h
+unix:  HEADERS += os_util_linux.h
+
 SOURCES += \
     RtObject.cpp \
     RtEvent.cpp \
