@@ -1,6 +1,7 @@
 #ifndef OS_UTILS_WIN32_H
 #define OS_UTILS_WIN32_H
 
+#include <sys/timeb.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmsystem.h>
@@ -134,6 +135,16 @@ public:
         return running_;
     }
 };
+
+/**
+  Returns time in seconds since the Epoch
+  */
+int system_time(double& t)
+{
+    __timeb32 t;
+    _ftime32(&t);
+    return RtTimeValue(t.time + 0.001*t.millitm);
+}
 
 template<class Functor>
 class timer

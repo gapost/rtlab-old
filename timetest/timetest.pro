@@ -10,3 +10,6 @@ HEADERS += \
     os_utils_win32.h \
     os_utils_linux.h
 
+unix: LIBS += -lrt -lpthread
+
+
