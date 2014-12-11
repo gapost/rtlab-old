@@ -3,7 +3,7 @@
 
 #include "RtEvent.h"
 
-#include "ui_channelWidget.h"
+#include "ui_ChannelWidget.h"
 
 class RtDataChannel;
 

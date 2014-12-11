@@ -56,4 +56,28 @@ DEFINES += _CRT_SECURE_NO_WARNINGS
 
 
 ############# linux ##############
+unix {
+
+############## GSL ##############
+LIBS += -lgsl -lm
+# INCLUDEPATH += /usr/include/gsl
+
+############## Qwt-5.2.1 ##############
+LIBS += -lqwt
+INCLUDEPATH += /usr/include/qwt
+
+
+
+############## HDF5 ##############
+#INCLUDEPATH += /usr/include
+LIBS += -lhdf5 -lhdf5_cpp
+
+############## muParser ##############
+#INCLUDEPATH += /usr/include
+LIBS += -lmuparser
+
+}
+
+OTHER_FILES += \
+    ../linux_readme.txt
 

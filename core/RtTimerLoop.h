@@ -1,7 +1,7 @@
 #ifndef _RTTIMERLOOP_H_
 #define _RTTIMERLOOP_H_
 
-#include "rtjob.h"
+#include "RtJob.h"
 #include "os_utils.h"
 #include "filters.h"
 
@@ -20,7 +20,7 @@ protected:
 
     typedef os::timer<RtTimerLoop> timer_t;
     //typedef os::timer_thread<RtTimerLoop> timer_t;
-	friend class timer_t;
+        friend class os::timer<RtTimerLoop>;
 	
 	timer_t thread_;
 	unsigned int period_;

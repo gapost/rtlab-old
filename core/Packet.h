@@ -65,6 +65,9 @@ public:
 };
 
 template<class T>
+class PacketReader;
+
+template<class T>
 class PacketWriter
 {
 	Packet<T>* packet;
@@ -100,8 +103,8 @@ public:
 	T* getNext() { return packet->row(0) + written++; }
 	void putBack() { if (written) written--; }
 
-	template<class T>
-	friend class PacketReader;
+        //template<class T>
+        friend class PacketReader<T>;
 };
 
 template<class T>

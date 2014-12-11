@@ -1,5 +1,8 @@
 #include "RtSession.h"
 #include "RtRoot.h"
+#include "RtTypes.h"
+#include "os_utils.h"
+
 #include <QDebug>
 #include <QScriptEngine>
 #include <QFile>
@@ -9,7 +12,7 @@
 #include <QPointer>
 #include <QStringList>
 
-#include "RtTypes.h"
+
 
 #define PROC_EVENTS_INTERVAL 250
 
@@ -19,7 +22,9 @@ RtSession::RtSession(const QString& name, RtObject* parent) : RtObject(name,"ses
 	engine->setProcessEventsInterval ( PROC_EVENTS_INTERVAL );
 	register_functions();
 
-	foreach(QObject* o, root_.children())
+        const QObjectList& chlist = root_.children();
+
+        foreach(QObject* o, chlist)
 	{
 		RtObject* rto = qobject_cast<RtObject*>(o);
 		if (rto) 
@@ -416,7 +421,7 @@ QScriptValue RtSession::beep_func(QScriptContext *ctx, QScriptEngine *e)
 		return ctx->throwError(QScriptContext::SyntaxError,usage);
 	}
 
-	MessageBeep(0xFFFFFFFF);
+        os::beep();
 
 	return e->undefinedValue();
 }

@@ -1,11 +1,11 @@
 #ifndef _RTSESSION_H_
 #define _RTSESSION_H_
 
-#include "rtobject.h"
+#include "RtObject.h"
 
 #include <QScriptValue>
 #include <QExplicitlySharedDataPointer>
-#include <QScriptProgram.h>
+#include <QScriptProgram>
 
 class QScriptEngine;
 class QScriptContext;

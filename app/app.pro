@@ -78,3 +78,10 @@ DEPENDPATH += $$PWD/../ni6602
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../ni6602/release/ni6602.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../ni6602/debug/ni6602.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../ni6602/libni6602.a
+
+unix:!macx:!symbian: LIBS += -L$$OUT_PWD/../core/ -lRtCore
+
+INCLUDEPATH += $$PWD/../core
+DEPENDPATH += $$PWD/../core
+
+unix:!macx:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../core/libRtCore.a

@@ -6,6 +6,7 @@
 
 #include <QByteArray>
 #include <QString>
+#include <QDateTime>
 
 class RtTimeValue
 {
@@ -30,9 +31,10 @@ public:
 
 	static RtTimeValue now()
 	{
-		__timeb32 t;
-		_ftime32(&t); 
-		return RtTimeValue(t.time + 0.001*t.millitm);
+            return RtTimeValue(QDateTime::currentMSecsSinceEpoch()*0.001);
+                //__timeb32 t;
+                //_ftime32(&t);
+                //return RtTimeValue(t.time + 0.001*t.millitm);
 	}
 
 	void split(int& sec, int& msec)
@@ -43,11 +45,14 @@ public:
 
 	QString toString()
 	{
-		int s,ms;
-		split(s,ms);
-		return QString("%1.%2")
-			.arg(QString(QByteArray(_ctime32((__time32_t*)&s)+11,8)))
-			.arg(ms,3,10,QChar('0'));
+            qint64 ms = (qint64)(v_*1000);
+            QDateTime t = QDateTime::fromMSecsSinceEpoch(ms);
+            return t.time().toString("hh:mm:ss.zzz");
+                //int s,ms;
+                //split(s,ms);
+                //return QString("%1.%2")
+                        //.arg(QString(QByteArray( _ctime32((__time32_t*)&s)+11,8)))
+                        //.arg(ms,3,10,QChar('0'));
 	}
 
 };

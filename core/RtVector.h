@@ -10,6 +10,8 @@
 #include <QPointer>
 
 class RtTableWidget;
+class DataBufferReceiver;
+class RtVector;
 
 class RtDataContainer : public RtObject
 {

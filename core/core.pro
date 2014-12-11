@@ -4,16 +4,16 @@
 #
 #-------------------------------------------------
 
-include ( ../rtlab.pri )
-
-include(../../3rdparty/qtpropertybrowser/src/qtpropertybrowser.pri)
-
-
 TARGET = RtCore
 TEMPLATE = lib
 CONFIG += staticlib uitools
-
 QT       += script
+
+include ( ../rtlab.pri )
+
+include(../../3rdparty/qt-solutions/qtpropertybrowser/src/qtpropertybrowser.pri)
+
+# INCLUDEPATH += $$PWD
 
 HEADERS += \
     os_utils.h \ 

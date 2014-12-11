@@ -9,7 +9,7 @@
 #include <QMetaObject>
 #include <QMetaMethod>
 
-#include "ObjectController.h"
+#include "objectcontroller.h"
 
 #include "RtObject.h"
 #include "RtObjectInspector.h"

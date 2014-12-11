@@ -1,7 +1,7 @@
 #ifndef _RTDATACHANNEL_H_
 #define _RTDATACHANNEL_H_
 
-#include "rtjob.h"
+#include "RtJob.h"
 #include "filters.h"
 #include "RtTypes.h"
 

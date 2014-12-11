@@ -1,7 +1,7 @@
 #ifndef _RTROOT_H_
 #define _RTROOT_H_
 
-#include "rtobject.h"
+#include "RtObject.h"
 
 class RtMainWindow;
 

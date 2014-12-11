@@ -1,7 +1,7 @@
 #ifndef _RTJOB_H_
 #define _RTJOB_H_
 
-#include "rtobject.h"
+#include "RtObject.h"
 
 #include <QPointer>
 

@@ -4,8 +4,15 @@
 #include <pthread.h>
 #include <signal.h>
 #include <string.h>
+#include <stdio.h>
 
 namespace os {
+
+void beep()
+{
+    printf("\a");
+}
+
 
 class critical_section
 {
@@ -149,7 +156,7 @@ int system_time(double& t)
   * + a thread that watches for the signal
   */
 template<class Functor>
-class ptimer
+class timer
 {
     pthread_t  tid;
     timer_t timerid;
@@ -190,11 +197,11 @@ class ptimer
         };
     }
 public:
-    ptimer() : tid(0), timerid(0)
+    timer() : tid(0), timerid(0)
     {
 
     }
-    ~ptimer()
+    ~timer()
     {
         stop();
     }

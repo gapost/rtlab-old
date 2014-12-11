@@ -8,6 +8,11 @@
 
 namespace os {
 
+void beep()
+{
+    MessageBeep(0xFFFFFFFF);
+}
+
 // a win32 critical section
 
 /**
