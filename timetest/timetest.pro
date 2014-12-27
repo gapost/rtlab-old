@@ -12,4 +12,8 @@ HEADERS += \
 
 unix: LIBS += -lrt -lpthread
 
+win32: LIBS += winmm.lib
+
+INCLUDEPATH += ../core
+
 

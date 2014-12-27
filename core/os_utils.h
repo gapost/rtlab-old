@@ -1,7 +1,6 @@
 #ifndef OS_UTILS_H
 #define OS_UTILS_H
 
-// currently only windows implementation
 #ifdef _WIN32
 #include "os_utils_win32.h"
 #elif __linux__

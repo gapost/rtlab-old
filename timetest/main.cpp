@@ -1,18 +1,11 @@
 #include <iostream>
-#include <unistd.h>
+//#include <unistd.h>
 
 #include "os_utils.h"
 
 using namespace std;
 
-void test_clock(const char* name, clockid_t id)
-{
-    timespec t;
-    clock_getres(id, &t);
-    cout << name << endl;
-    cout << "  sec  " << t.tv_sec << endl;
-    cout << "  nsec " << t.tv_nsec << endl << endl;
-}
+
 
 int test1();
 int test2();
@@ -31,35 +24,49 @@ struct test_func
     {
         //double t = w.sec();
         w.stop();
-        //cout << w.sec()*1000 << endl;
+        cout << w.sec()*1000 << endl;
         d[n++] = w.sec()*1000;
         w.start();
     }
 };
 
-int main()
+int main(int argc, char* argv[])
 {
-    os::ptimer<test_func> t;
+    char* usage =
+            "Usage:\n"
+            "  timetest p t\n"
+            "  p  :  period in ms\n"
+            "  t  :  time in s\n";
+
+    if (argc!=3)
+    {
+        cout << usage << endl;
+        return -1;
+    }
+
+    int period = atoi(argv[1]); // ms
+    int ts = atoi(argv[2]); // s
+
+    os::timer<test_func> t;
     test_func f;
 
     f.init();
-    t.start(&f,50);
+    bool ret = t.start(&f,period);
+    // cout << ret << endl;
 
-    sleep(2);
+    Sleep(ts*1000);
+
+    t.stop();
 
     for(int i=0; i<f.n; i++)
         cout << f.d[i] << endl;
 
-    return 0;
-}
 
-int test2()
-{
-    test_clock("CLOCK_REALTIME",CLOCK_REALTIME);
-    test_clock("CLOCK_MONOTONIC",CLOCK_MONOTONIC);
 
     return 0;
 }
+
+
 
 int test1()
 {
@@ -77,4 +84,29 @@ int test1()
 
     return 0;
 }
+
+#ifdef __linux__
+
+void test_clock(const char* name, clockid_t id)
+{
+    timespec t;
+    clock_getres(id, &t);
+    cout << name << endl;
+    cout << "  sec  " << t.tv_sec << endl;
+    cout << "  nsec " << t.tv_nsec << endl << endl;
+}
+
+int test2()
+{
+    test_clock("CLOCK_REALTIME",CLOCK_REALTIME);
+    test_clock("CLOCK_MONOTONIC",CLOCK_MONOTONIC);
+
+    return 0;
+}
+
+#else
+
+int test2() { return 0; }
+
+#endif
 

@@ -142,13 +142,13 @@ public:
 /**
   Returns time in seconds since the Epoch
   */
-int system_time(double& t)
+/*int system_time(double& t)
 {
     timespec ts_;
     int ret = clock_gettime(CLOCK_REALTIME, &ts_);
     t = 1.e-9*ts_.tv_nsec + ts_.tv_sec;
     return ret;
-}
+}*/
 
 #define SIG SIGRTMIN
 /** timer thread

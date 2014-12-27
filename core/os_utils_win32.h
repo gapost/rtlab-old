@@ -8,7 +8,7 @@
 
 namespace os {
 
-void beep()
+inline void beep()
 {
     MessageBeep(0xFFFFFFFF);
 }
@@ -144,12 +144,12 @@ public:
 /**
   Returns time in seconds since the Epoch
   */
-int system_time(double& t)
+/*int system_time(double& t)
 {
     __timeb32 t;
     _ftime32(&t);
     return RtTimeValue(t.time + 0.001*t.millitm);
-}
+}*/
 
 template<class Functor>
 class timer

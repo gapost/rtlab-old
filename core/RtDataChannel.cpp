@@ -135,7 +135,7 @@ void RtDataChannel::postRun()
 			dv_ = multiplier_*dv_ + offset_;
 		}
 		// check limits
-                dataReady_ = dataReady_ && finite(v_) && (v_>range_[0]) && (v_<range_[1]);
+        dataReady_ = dataReady_ && finite(v_) && (v_>range_[0]) && (v_<range_[1]);
 		updateWidgets();
 	}
 	RtJob::run();
