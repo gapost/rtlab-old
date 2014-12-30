@@ -24,6 +24,12 @@ Packages :
   muParser-devel
 from fedora EPEL repo.
 
+5. Atlas Blas
+Package atlas.i686
+  needs a symlink to work
+  sudo ln -s /usr/lib/atlas/libcblas.so.3.0 /usr/lib/libcblas.so
+  sudo ln -s /usr/lib/atlas/libatlas.so.3.0 /usr/lib/libatlas.so
+
 CentOS/RedHat notes
 -------------------
 Find packages with

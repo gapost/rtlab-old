@@ -1,12 +1,19 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
-SUBDIRS += \
-    daqmx_test \
+
+win32:SUBDIRS += \
     core \
+    test \
     ni6602 \
     wago_mbt \
     dev \
     app \
-    timetest \
+    daqmx_test \
     qtdaqmx
+
+unix:SUBDIRS += \
+    core \
+    test \
+    dev \
+    app
