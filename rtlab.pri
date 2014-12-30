@@ -62,13 +62,12 @@ unix {
     LIBS += -lrt -lpthread
 
     ############## GSL ##############
-    LIBS += -lgsl -lm
+    LIBS += -lgsl -lcblas -latlas -lm
     # INCLUDEPATH += /usr/include/gsl
 
     ############## Qwt-5.2.1 ##############
     LIBS += -lqwt
     INCLUDEPATH += /usr/include/qwt
-
 
     ############## HDF5 ##############
     #INCLUDEPATH += /usr/include

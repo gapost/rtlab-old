@@ -1,8 +1,9 @@
 #ifndef _RTTIMEVALUE_H_
 #define _RTTIMEVALUE_H_
 
-#include <sys/timeb.h>
-#include <time.h>
+//#include <sys/timeb.h>
+//#include <time.h>
+#include <cmath>
 
 #include <QByteArray>
 #include <QString>
@@ -31,28 +32,23 @@ public:
 
 	static RtTimeValue now()
 	{
-            return RtTimeValue(QDateTime::currentMSecsSinceEpoch()*0.001);
-                //__timeb32 t;
-                //_ftime32(&t);
-                //return RtTimeValue(t.time + 0.001*t.millitm);
-	}
-
-	void split(int& sec, int& msec)
-	{
-		sec = (int)v_;
-		msec = (int)(1000*(v_-sec));
+        const int epoch = 2440588; // Julian day of 1/1/1970
+        const double s_per_day = 24*60*60.0;
+        QTime T = QTime::currentTime();
+        return RtTimeValue( (QDate::currentDate().toJulianDay() - epoch)*s_per_day +
+                T.second()+60*(T.minute()+60*T.hour())+0.001*T.msec() );
 	}
 
 	QString toString()
 	{
-            qint64 ms = (qint64)(v_*1000);
-            QDateTime t = QDateTime::fromMSecsSinceEpoch(ms);
-            return t.time().toString("hh:mm:ss.zzz");
-                //int s,ms;
-                //split(s,ms);
-                //return QString("%1.%2")
-                        //.arg(QString(QByteArray( _ctime32((__time32_t*)&s)+11,8)))
-                        //.arg(ms,3,10,QChar('0'));
+        const int s_per_day = 24*60*60.0;
+        double sec = std::floor(v_);
+        int ms = (int)((v_-sec)*1000);
+        sec = std::fmod(sec,s_per_day);
+        QTime T(0,0);
+        T = T.addSecs((int)sec);
+        T = T.addMSecs(ms);
+        return T.toString("hh:mm:ss.zzz");
 	}
 
 };
