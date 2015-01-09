@@ -4,6 +4,150 @@
 #include <QMutex>
 #include <QWaitCondition>
 
+struct mxFunc;
+
+
+/* A synchronization "pin"
+ * The pin synchronizes the communication between a server and a client thread
+ */
+template<class T_>
+class sync_pin
+{
+    QMutex mtxRequest, mtxReady;
+    QWaitCondition waitRequest, waitReady;
+    bool ready_;
+    T_ d;
+
+public:
+    sync_pin() : ready_(false), d(0)
+    {}
+
+    void reset()
+    {
+        ready_ = false;
+    }
+    T_& data()
+    {
+        return d;
+    }
+
+    /* Wait until the server is ready and waiting for input.
+     * Called from client.
+     */
+    void wait_for_ready()
+    {
+        mtxReady.lock();
+        while (!ready_) waitReady.wait(&mtxReady);
+        mtxReady.unlock();
+    }
+    /* Wait until the server is ready and waiting for input and
+     * set a request for processing the data q.
+     * Called from client.
+     */
+    void set_request(T_ q)
+    {
+        wait_for_ready();
+
+        mtxRequest.lock();
+        d = q;
+        waitRequest.wakeOne();
+        mtxRequest.unlock();
+    }
+    /* Called from the server.
+     * Puts the server is ready mode, waiting for clients
+     */
+    void operator()()
+    {
+        mtxRequest.lock();
+        {
+            mtxReady.lock();
+            ready_ = true;
+            waitReady.wakeOne();
+            mtxReady.unlock();
+        }
+        waitRequest.wait(&mtxRequest);
+        {
+            mtxReady.lock();
+            ready_ = false;
+            mtxReady.unlock();
+        }
+        mtxRequest.unlock();
+    }
+};
+
+// This QThread handles all DAQmx Base calls
+class daqmx_thread : public QThread
+{
+
+    sync_pin<mxFunc*> input_pin;
+    sync_pin<int> output_pin;
+    bool quit_;
+public:
+    daqmx_thread() : QThread()
+    {}
+    // overload QThread::start to ensure that
+    // the thread is waiting for input
+    void start()
+    {
+        if (isRunning()) return;
+
+        quit_ = false;
+        input_pin.reset();
+        output_pin.reset();
+        QThread::start();
+
+        input_pin.wait_for_ready();
+    }
+    // main thread loop
+    void run()
+    {
+        // begin the loop
+        while (1)
+        {
+            // wait for request
+            input_pin();
+
+            // if requested to quit ...
+            if (quit_) break;
+
+            // call the DAQmx function
+            input_pin.data()->operator ()();
+
+            // unblock the caller
+            output_pin.set_request(0);
+        }
+    }
+    // this function is called from client threads
+    // to perform a DAQmx function
+    int call_daqmx(mxFunc* g)
+    {
+        if (!isRunning())
+        {
+            g->retval = -1;
+            g->errmsg = "DAQmx Base thread not running";
+            return -1;
+        }
+
+        // request the server to run the command
+        input_pin.set_request(g);
+
+        // wait for completion
+        output_pin();
+
+        // return daqmx retval
+        return g->retval;
+    }
+    void quit()
+    {
+        if (!isRunning()) return;
+        // wait until thread is ready
+        input_pin.wait_for_ready();
+        quit_ = true;
+        input_pin.set_request(0);
+        wait();
+    }
+};
+
 // functor encapsulating a DAQmx Base function
 struct mxFunc
 {
@@ -19,92 +163,6 @@ struct mxFunc
     mxFunc(TaskHandle ah, QString& aerrmsg) : h(ah), errmsg(aerrmsg)
     {}
 };
-
-// This QThread handles all DAQmx Base calls
-class daqmx_thread : public QThread
-{
-    QMutex mtx;
-    QWaitCondition waitRequest, waitCompletion;
-    mxFunc* mxf;
-    bool quit_;
-public:
-    daqmx_thread() : QThread()
-    {}
-    // overload QThread::start to ensure that
-    // the thread is waiting for input
-    void start()
-    {
-        mtx.lock();
-        QThread::start();
-        waitCompletion.wait(&mtx); // wait for the thread to begin
-        mtx.unlock();
-    }
-    // main thread loop
-    void run()
-    {
-        quit_ = false;
-
-        // unblock the start() function
-        mtx.lock();
-        waitCompletion.wakeOne();
-        mtx.unlock();
-
-        // begin the loop
-        while (1)
-        {
-            // wait for request
-            mtx.lock();
-            waitRequest.wait(&mtx);
-            mtx.unlock();
-
-            // if requested to quit ...
-            if (quit_) break;
-
-            // call the DAQmx function
-            mxf->operator()();
-
-            // unblock the caller
-            mtx.lock();
-            waitCompletion.wakeOne();
-            mtx.unlock();
-        }
-    }
-    // this function is called from client threads
-    // to perform a DAQmx function
-    int call_daqmx(mxFunc* g)
-    {
-        if (!isRunning())
-        {
-            g->retval = -1;
-            g->errmsg = "DAQmx Base thread not running";
-            return -1;
-        }
-
-        // request the server to run the command
-        mtx.lock();
-        mxf = g;
-        waitRequest.wakeOne(); // wake the server
-        mtx.unlock();
-
-        // wait for completion
-        mtx.lock();
-        waitCompletion.wait(&mtx);
-        mtx.unlock();
-
-        // return daqmx retval
-        return g->retval;
-    }
-    void quit()
-    {
-        if (!isRunning()) return;
-        mtx.lock();
-        quit_ = true;
-        waitRequest.wakeOne();
-        mtx.unlock();
-        wait();
-    }
-};
-
 
 daqmx_thread* daqmx::thread_ = 0;
 
