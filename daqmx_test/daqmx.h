@@ -12,14 +12,26 @@ struct sys
     static int deviceNames(std::vector<std::string> &devs);
 };
 
-struct dev
+class dev
 {
-    static int aiChannels(std::string& devname, std::vector<std::string> &ch);
-    static int aoChannels(std::string& devname, std::vector<std::string> &ch);
-    static int ciChannels(std::string& devname, std::vector<std::string> &ch);
-    static int coChannels(std::string& devname, std::vector<std::string> &ch);
-    static int diLines(std::string& devname, std::vector<std::string> &ch);
-    static int doLines(std::string& devname, std::vector<std::string> &ch);
+    std::string devName_;
+
+    dev();
+public:
+    explicit dev(const std::string& name) : devName_(name)
+    {}
+    dev(const dev& other) : devName_(other.devName_)
+    {}
+
+    const std::string& name() const
+    { return devName_; }
+
+    int aiChannels(std::vector<std::string> &ch) const;
+    int aoChannels(std::vector<std::string> &ch) const;
+    int ciChannels(std::vector<std::string> &ch) const;
+    int coChannels(std::vector<std::string> &ch) const;
+    int diLines(std::vector<std::string> &ch) const;
+    int doLines(std::vector<std::string> &ch) const;
 };
 
 }

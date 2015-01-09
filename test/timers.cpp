@@ -3,6 +3,8 @@
 
 #include <RtTimeValue.h>
 
+#include <os_utils.h>
+
 #ifdef __linux__
 
 #include <unistd.h>
@@ -20,8 +22,6 @@ inline void sleep_for_secs(int s)
 }
 
 #endif
-
-#include <os_utils.h>
 
 using namespace std;
 

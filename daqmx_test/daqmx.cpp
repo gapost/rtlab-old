@@ -37,6 +37,7 @@ void ni_tokenize(const string& str, vector<string>& tokens)
 {
     std::istringstream iss(str);
     std::string token;
+    tokens.clear();
     while(iss >> token) {
         // erase trailing comma
         size_t last = token.size()-1;
@@ -61,12 +62,12 @@ int daqmx::sys::deviceNames(vector<string>& devs)
     return ret;
 }
 
-int daqmx::dev::aiChannels(std::string& devname, std::vector<std::string> &ch)
+int daqmx::dev::aiChannels(std::vector<std::string> &ch) const
 {
     const uInt32 len = BUFFLEN;
     char buff[len];
 
-    int ret = DAQmxGetDevAIPhysicalChans(devname.c_str(),buff,len);
+    int ret = DAQmxGetDevAIPhysicalChans(devName_.c_str(),buff,len);
 
     if (ret==0)
     {
@@ -75,12 +76,12 @@ int daqmx::dev::aiChannels(std::string& devname, std::vector<std::string> &ch)
 
     return ret;
 }
-int daqmx::dev::aoChannels(std::string& devname, std::vector<std::string> &ch)
+int daqmx::dev::aoChannels(std::vector<std::string> &ch) const
 {
     const uInt32 len = BUFFLEN;
     char buff[len];
 
-    int ret = DAQmxGetDevAOPhysicalChans(devname.c_str(),buff,len);
+    int ret = DAQmxGetDevAOPhysicalChans(devName_.c_str(),buff,len);
 
     if (ret==0)
     {
@@ -89,12 +90,12 @@ int daqmx::dev::aoChannels(std::string& devname, std::vector<std::string> &ch)
 
     return ret;
 }
-int daqmx::dev::ciChannels(std::string& devname, std::vector<std::string> &ch)
+int daqmx::dev::ciChannels(std::vector<std::string> &ch) const
 {
     const uInt32 len = BUFFLEN;
     char buff[len];
 
-    int ret = DAQmxGetDevCIPhysicalChans(devname.c_str(),buff,len);
+    int ret = DAQmxGetDevCIPhysicalChans(devName_.c_str(),buff,len);
 
     if (ret==0)
     {
@@ -103,12 +104,12 @@ int daqmx::dev::ciChannels(std::string& devname, std::vector<std::string> &ch)
 
     return ret;
 }
-int daqmx::dev::coChannels(std::string& devname, std::vector<std::string> &ch)
+int daqmx::dev::coChannels(std::vector<std::string> &ch) const
 {
     const uInt32 len = BUFFLEN;
     char buff[len];
 
-    int ret = DAQmxGetDevCOPhysicalChans(devname.c_str(),buff,len);
+    int ret = DAQmxGetDevCOPhysicalChans(devName_.c_str(),buff,len);
 
     if (ret==0)
     {
@@ -117,12 +118,12 @@ int daqmx::dev::coChannels(std::string& devname, std::vector<std::string> &ch)
 
     return ret;
 }
-int daqmx::dev::diLines(std::string& devname, std::vector<std::string> &ch)
+int daqmx::dev::diLines(std::vector<std::string> &ch) const
 {
     const uInt32 len = BUFFLEN;
     char buff[len];
 
-    int ret = DAQmxGetDevDILines(devname.c_str(),buff,len);
+    int ret = DAQmxGetDevDILines(devName_.c_str(),buff,len);
 
     if (ret==0)
     {
@@ -131,12 +132,12 @@ int daqmx::dev::diLines(std::string& devname, std::vector<std::string> &ch)
 
     return ret;
 }
-int daqmx::dev::doLines(std::string& devname, std::vector<std::string> &ch)
+int daqmx::dev::doLines(std::vector<std::string> &ch) const
 {
     const uInt32 len = BUFFLEN;
     char buff[len];
 
-    int ret = DAQmxGetDevDOLines(devname.c_str(),buff,len);
+    int ret = DAQmxGetDevDOLines(devName_.c_str(),buff,len);
 
     if (ret==0)
     {

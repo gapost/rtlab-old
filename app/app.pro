@@ -85,3 +85,6 @@ INCLUDEPATH += $$PWD/../core
 DEPENDPATH += $$PWD/../core
 
 unix:!macx:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../core/libRtCore.a
+
+OTHER_FILES += \
+    script/testDaqmx.qs

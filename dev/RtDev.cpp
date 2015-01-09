@@ -9,6 +9,7 @@
 #include "RtResistanceController.h"
 #include "Rt6602.h"
 #include "RtAxis.h"
+#include "rtdaqmxtask.h"
 
 
 RtAcquisition::RtAcquisition(const QString& name, RtObject* parent) :
@@ -153,6 +154,13 @@ void RtAcquisition::newTemperatureController(const QString& name, RtDataChannel*
 		createScriptObject(dev);
 	}
 	else throwScriptError("Invalid temperature channel.");
+}
+
+void RtAcquisition::newDAQmxTask(const QString &name)
+{
+    if (!checkName(name)) return;
+    RtDAQmxTask* task = new RtDAQmxTask(name,this);
+    if (task) createScriptObject(task);
 }
 
 

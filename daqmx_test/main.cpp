@@ -6,65 +6,35 @@ using namespace std;
 
 int main()
 {
-    vector<string> v;
+    vector<string> v,ch;
 
 
     daqmx::sys::deviceNames(v);
-    for(int i=0; i<(int)v.size(); ++i)
+    int nd = v.size();
+    cout << "Found " << nd << " devices." << endl;
+    for(int i=0; i<nd; ++i)
     {
-        cout << v[i] << endl;
+        daqmx::dev D(v[i]);
+
+        cout << i+1 << ". " << D.name().c_str() << endl;
+
+        D.aiChannels(ch);
+        cout << "  Analog Input Channels  : " << ch.size() << endl;
+        D.aoChannels(ch);
+        cout << "  Analog Output Channels : " << ch.size() << endl;
+        D.ciChannels(ch);
+        cout << "  Counter Input Channels  : " << ch.size() << endl;
+        D.coChannels(ch);
+        cout << "  Counter Output Channels : " << ch.size() << endl;
+        D.diLines(ch);
+        cout << "  Digital Input Channels  : " << ch.size() << endl;
+        D.doLines(ch);
+        cout << "  Digital Output Channels : " << ch.size() << endl;
+
     }
     cout << endl;
 
-    std::string devname(v[1]);
 
-    v.clear();
-    daqmx::dev::aiChannels(devname,v);
-    for(int i=0; i<(int)v.size(); ++i)
-    {
-        cout << v[i] << endl;
-    }
-    cout << endl;
-
-    v.clear();
-    daqmx::dev::aoChannels(devname,v);
-    for(int i=0; i<(int)v.size(); ++i)
-    {
-        cout << v[i] << endl;
-    }
-    cout << endl;
-
-    v.clear();
-    daqmx::dev::ciChannels(devname,v);
-    for(int i=0; i<(int)v.size(); ++i)
-    {
-        cout << v[i] << endl;
-    }
-    cout << endl;
-
-    v.clear();
-    daqmx::dev::coChannels(devname,v);
-    for(int i=0; i<(int)v.size(); ++i)
-    {
-        cout << v[i] << endl;
-    }
-    cout << endl;
-
-    v.clear();
-    daqmx::dev::diLines(devname,v);
-    for(int i=0; i<(int)v.size(); ++i)
-    {
-        cout << v[i] << endl;
-    }
-    cout << endl;
-
-    v.clear();
-    daqmx::dev::doLines(devname,v);
-    for(int i=0; i<(int)v.size(); ++i)
-    {
-        cout << v[i] << endl;
-    }
-    cout << endl;
 
     return 0;
 }

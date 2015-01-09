@@ -30,11 +30,29 @@ Package atlas.i686
   sudo ln -s /usr/lib/atlas/libcblas.so.3.0 /usr/lib/libcblas.so
   sudo ln -s /usr/lib/atlas/libatlas.so.3.0 /usr/lib/libatlas.so
 
+NI DAQ notes
+------------
+
+NI Linux DRIVERS
+
+1) NI-DAQmx 8.0.2 (2011)
+supports 6221 & 6602
+openSUSE 11.1-11.3 (kernel 2.6.x)
+RHEL 4 & 5
+
+2) NI-DAQmx Base (Nov 2014)
+supports only 6221
+openSUSE 12.3 (kernel 3.7.10) and 13.1 (kernel 3.11.6)
+Scientific Linux 6.x
+RHEL 6 (kernel 2.6.x)
+
 CentOS/RedHat notes
 -------------------
 Find packages with
 >yum list name*
+
 Install
 >yum install name
+
 List installed files
 >rpm -ql --filesbypkg name

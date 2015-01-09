@@ -11,6 +11,11 @@ win32 {
     INCLUDEPATH += $$PWD/../3rdparty/ni-daq-8.6/Include
     DEPENDPATH += $$PWD/../3rdparty/ni-daq-8.6/Include
 
+    ############## NI-DAQmx ##############
+    DAQMX_PATH = "c:/Program Files (x86)/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
+    LIBS += -L$$DAQMX_PATH//Lib/msvc -lnidaqmx
+    INCLUDEPATH += $$DAQMX_PATH/include/
+
     ############## NI-488.2 ##############
     LIBS += -L$$PWD/../3rdparty/ni4882-1.6 gpib-32.obj
     INCLUDEPATH += $$PWD/../3rdparty/ni4882-1.6
@@ -76,6 +81,11 @@ unix {
     ############## muParser ##############
     #INCLUDEPATH += /usr/include
     LIBS += -lmuparser
+
+    ############## NI DAQmx Base #########
+    CONFIG += daqmxbase
+    # LIBS += -L$$DAQMX_PATH//Lib/msvc -lnidaqmx
+    # INCLUDEPATH += $$DAQMX_PATH/include/
 }
 
 OTHER_FILES += \
