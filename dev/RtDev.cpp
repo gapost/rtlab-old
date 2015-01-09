@@ -1,6 +1,5 @@
 #include "RtDev.h"
 #include "RtInterface.h"
-#include "RtNiGpib.h"
 
 #include "RtDevice.h"
 #include "RtKeithleyDevice.h"
@@ -21,20 +20,14 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	static const char* InvalidTypeMsg = 
 		"Invalid interface type specification.\n"
 		"Valid types are:\n"
-		"  \"RS232\", Standard serial communications\n"
-		"  \"TCPIP\", Standard Tcp/Ip communications\n"
-        "  \"NI-GPIB\", National Instr. GPIB card\n"
-        "  \"MODBUS-TCP\", Modbus over Tcp/Ip communications\n";
+        "  \"TCPIP\", Standard Tcp/Ip communications\n";
 
 	// check name
 	if (!checkName(name)) return;
 
 	// check the type
 	int idx = -1;
-	if      (type=="RS232") idx=0;
-	else if (type=="NI-GPIB") idx=1;
-	else if (type=="TCPIP") idx=2;    
-    else if (type=="MODBUS-TCP") idx=3;
+    if (type=="TCPIP") idx=0;
 	else
 	{
 		throwScriptError(InvalidTypeMsg);
@@ -45,16 +38,7 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	switch (idx)
 	{
 	case 0:
-		dev = new RtRS232(name,this,addr);
-		break;
-	case 1:
-		dev = new RtNiGpib(name,this,addr);
-		break;
-	case 2:
 		dev = new RtTcpip(name,this);
-        break;
-    case 3:
-        dev = new RtModbusTcp(name,this);
         break;
     }
 	createScriptObject(dev);

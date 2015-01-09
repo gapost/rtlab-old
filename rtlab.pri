@@ -1,10 +1,15 @@
+
 ############## 3rd Party Libs for win32 ###############
 
 win32 {
     ############## WAGO ModBus-TCP ##############
-    LIBS += -L$$PWD/../3rdparty/wago_modbus_tcp/lib/ -lMBT
-    INCLUDEPATH += $$PWD/../3rdparty/wago_modbus_tcp/include
-    DEPENDPATH += $$PWD/../3rdparty/wago_modbus_tcp/include
+    CONFIG += wago_mbt
+    wago_mbt {
+        LIBS += -L$$PWD/../3rdparty/wago_modbus_tcp/lib/ -lMBT
+        INCLUDEPATH += $$PWD/../3rdparty/wago_modbus_tcp/include
+        DEPENDPATH += $$PWD/../3rdparty/wago_modbus_tcp/include
+        DEFINES += USE_WAGO_MBT
+    }
 
     ############## NI-DAQ ##############
     LIBS += -L$$PWD/../3rdparty/ni-daq-8.6/Lib/ -lnidaq32

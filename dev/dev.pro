@@ -19,7 +19,6 @@ SOURCES += RtDev.cpp \
     RtPowerSupply.cpp \
     RtTemperatureController.cpp \
     RtResistanceController.cpp \
-    RtNiGpib.cpp \
     RtAxis.cpp \
     rtdaqmxtask.cpp
 
@@ -32,14 +31,12 @@ daqmxbase {
 HEADERS += RtDev.h \
     RtDevice.h \
     RtInterface.h \
-    serialport.h \
     RtKeithleyDevice.h \
     RtPowerSupply.h \
     RtTemperatureController.h \
     RtResistanceController.h \
     isa_pid.h \
     relaytuner.h \
-    RtNiGpib.h \
     RtAxis.h \
     rtdaqmxtask.h \
     daqmx.h
