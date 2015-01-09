@@ -1,0 +1,39 @@
+dev.newDAQmxTask("ai")
+dev.ai.online=true
+dev.ai.addAnalogInputChannel("Dev1/ai0")
+quit()
+dev.newDAQmxTask("ai")
+dev.ai.addAnalogInputChannel("Dev1/ai0")
+dev.ai.addAnalogInputChannel("Dev1\ai1")
+dev.ai.online
+dev.ai.online=1
+dev.ai.read()
+exec("script/testdaqmx.qs")
+kill(find(*))
+find(*)
+find("*")
+kill(find("*"))
+exec("script/testdaqmx.qs")
+dev.ai.read()
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+with(dev.ai) { read(); print("ch1 = " + ch1.value()); print("ch2 = " + ch2.value()); }
+exec("script/testdaqmx.qs")
+dev.newDAQmxTask("ctr1")
+dev.ctr1.addCountEdgesChannel("Dev2/ctr0")
+dev.ctr1.addCountEdgesChannel("Dev2/ctr1")
+dev.ctr1.start()
+dev.ctr1.on()
+kill(dev.ctr1)
+dev.newDAQmxTask("ctr1")
+dev.ctr1.addCountEdgesChannel("Dev2/ctr0")
+dev.ctr1.on()
+dev.ctr1.read()

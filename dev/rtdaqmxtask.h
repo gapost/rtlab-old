@@ -105,6 +105,8 @@ public slots:
     }
     void read();
     void write();
+    bool on();
+    void off();
 };
 
 #endif // RTDAQMXTASK_H

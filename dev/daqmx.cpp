@@ -79,41 +79,39 @@ int daqmx::createCICountEdgesChan(TaskHandle h, const QString& name, int32 edge,
 }
 int daqmx::readAnalog(TaskHandle h, double timo, double *buff, int32 &read, QString &msg)
 {
-    bool32 _r;
+    uInt32 len = read;
     int ret = DAQmxReadAnalogF64(h,1,timo,DAQmx_Val_GroupByChannel,
-                                 buff,1,&read,&_r);
+                                 buff,len,&read,NULL);
     if (ret!=0) msg = getErrorMessage(ret);
     return ret;
 }
 int daqmx::readDigital(TaskHandle h, double timo, uInt32* buff, int32 &read, QString &msg)
 {
-    bool32 _r;
+    uInt32 len = read;
     int ret = DAQmxReadDigitalU32(h,1,timo,DAQmx_Val_GroupByChannel,
-                                 buff,1,&read,&_r);
+                                 buff,len,&read,NULL);
     if (ret!=0) msg = getErrorMessage(ret);
     return ret;
 }
 int daqmx::readCounter(TaskHandle h, double timo, uInt32* buff, int32 &read, QString &msg)
 {
-    bool32 _r;
+    uInt32 len = read;
     int ret = DAQmxReadCounterU32(h,1,timo,
-                                 buff,1,&read,&_r);
+                                 buff,len,&read,NULL);
     if (ret!=0) msg = getErrorMessage(ret);
     return ret;
 }
 int daqmx::writeAnalog(TaskHandle h, double timo, const double *buff, int32 &written, QString &msg)
 {
-    bool32 _r;
     int ret = DAQmxWriteAnalogF64(h,1,FALSE,timo,DAQmx_Val_GroupByChannel,
-                                 buff,&written,&_r);
+                                 buff,&written,NULL);
     if (ret!=0) msg = getErrorMessage(ret);
     return ret;
 }
 int daqmx::writeDigital(TaskHandle h, double timo, const uInt32* buff, int32 &written, QString &msg)
 {
-    bool32 _r;
     int ret = DAQmxWriteDigitalU32(h,1,FALSE,timo,DAQmx_Val_GroupByChannel,
-                                 buff,&written,&_r);
+                                 buff,&written,NULL);
     if (ret!=0) msg = getErrorMessage(ret);
     return ret;
 }

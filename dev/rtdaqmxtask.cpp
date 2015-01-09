@@ -46,6 +46,15 @@ void RtDAQmxTask::setOnline(bool on)
         emit propertiesChanged();
     }
 }
+bool RtDAQmxTask::on()
+{
+    setOnline(true);
+    return online_;
+}
+void RtDAQmxTask::off()
+{
+    setOnline(false);
+}
 void RtDAQmxTask::setTimeout(const double& v)
 {
     os::auto_lock L(comm_lock);
@@ -92,7 +101,7 @@ bool RtDAQmxTask::setOnline_(bool on)
 bool RtDAQmxTask::addChannel_(DaqType type, const QString& physName, const QString& config1, const QString& config2, double minVal, double maxVal)
 {
     // check if the type of channel is OK with the task daqType
-    if (daqType_!=type || daqType_!=Undefined)
+    if (!(daqType_==type || daqType_==Undefined))
     {
         throwScriptError("Not compatible channel type");
         return false;
@@ -176,17 +185,25 @@ bool RtDAQmxTask::addChannel_(DaqType type, const QString& physName, const QStri
         return false;
     }
 
+    // adjust channels
     int ch_num = channels_.size() + 1;
     channels_.push_back(new RtDataChannel(QString("ch%1").arg(ch_num),physName,this));
+
+    // adjust buffers
+    analogBuffer_.resize(ch_num);
+    digitalBuffer_.resize(ch_num);
+
+    // set daq type
     daqType_ = type;
+
     emit propertiesChanged();
     return true;
 }
 bool RtDAQmxTask::doReadWrite_()
 {
-    int32 ns;
     QString msg;
     int nch = channels_.size();
+    int32 ns = nch;
 
     if (daqType_==AnalogOutput)
         for(int i=0; i<nch; i++) analogBuffer_[i] = channels_[i]->value();
