@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "RtDev.h"
 
 //#define _CRTDBG_MAP_ALLOC

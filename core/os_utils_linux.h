@@ -1,4 +1,5 @@
 #ifndef OS_UTILS_LINUX_H
+#define OS_UTILS_LINUX_H
 
 #include <time.h>
 #include <pthread.h>
@@ -8,7 +9,7 @@
 
 namespace os {
 
-void beep()
+static inline void beep()
 {
     printf("\a");
 }

@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "ScriptEditor.h"
 #include "ScriptConsole.h"
 //#include "RtObjectInspector.h"

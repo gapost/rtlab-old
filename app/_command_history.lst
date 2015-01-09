@@ -37,3 +37,6 @@ dev.newDAQmxTask("ctr1")
 dev.ctr1.addCountEdgesChannel("Dev2/ctr0")
 dev.ctr1.on()
 dev.ctr1.read()
+exec("script/testdaqmx.qs")
+dir
+ls

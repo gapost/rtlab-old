@@ -173,7 +173,7 @@ struct mxStartTask : public mxFunc
         checkError();
     }
 
-    DAQmxStartTask(TaskHandle h, QString& msg) : mxFunc(h,msg)
+    mxStartTask(TaskHandle h, QString& msg) : mxFunc(h,msg)
     {}
 };
 int daqmx::startTask(TaskHandle h, QString &errmsg)
@@ -187,7 +187,7 @@ struct mxStopTask : public mxFunc
 {
     virtual void operator()()
     {
-        retval = DAQmxStopTask(h);
+        retval = DAQmxBaseStopTask(h);
         checkError();
     }
 
@@ -242,7 +242,7 @@ struct mxCreateAOChan : public mxFunc
 
     mxCreateAOChan(TaskHandle h, const QString &aname,
                    double aminVal, double amaxVal, QString& msg) : mxFunc(h,msg),
-        name(aname), config(aconfig), minVal(aminVal), maxVal(amaxVal)
+        name(aname), minVal(aminVal), maxVal(amaxVal)
     {}
 };
 int daqmx::createAOChan(TaskHandle h, const QString &name, double minVal, double maxVal, QString &errmsg)
@@ -334,7 +334,7 @@ struct mxReadAnalog : public mxFunc
 };
 int daqmx::readAnalog(TaskHandle h, double timo, double *buff, int32 &read, QString &msg)
 {
-    mxReadAnalog mxf(h,timo,buff,read,errmsg);
+    mxReadAnalog mxf(h,timo,buff,read,msg);
     daqmx::thread_->call_daqmx(&mxf);
     return mxf.retval;
 }
@@ -352,13 +352,13 @@ struct mxReadDigital : public mxFunc
         checkError();
     }
 
-    mxReadDigital(TaskHandle h, const double &atimo, double* abuff, int32& aread, QString& msg) : mxFunc(h,msg),
+    mxReadDigital(TaskHandle h, const double &atimo, uInt32* abuff, int32& aread, QString& msg) : mxFunc(h,msg),
         timo(atimo), buff(abuff), read(aread)
     {}
 };
 int daqmx::readDigital(TaskHandle h, double timo, uInt32* buff, int32 &read, QString &msg)
 {
-    mxReadDigital mxf(h,timo,buff,read,errmsg);
+    mxReadDigital mxf(h,timo,buff,read,msg);
     daqmx::thread_->call_daqmx(&mxf);
     return mxf.retval;
 }
@@ -371,18 +371,17 @@ struct mxReadCounter : public mxFunc
     virtual void operator()()
     {
         uInt32 ns = read;
-        retval = DAQmxBaseReadCounterU32(h,1,timo,DAQmx_Val_GroupByChannel,
-                                    buff,ns,&read,NULL);
+        retval = DAQmxBaseReadCounterU32(h,1,timo,buff,ns,&read,NULL);
         checkError();
     }
 
-    mxReadCounter(TaskHandle h, const double &atimo, double* abuff, int32& aread, QString& msg) : mxFunc(h,msg),
+    mxReadCounter(TaskHandle h, const double &atimo, uInt32* abuff, int32& aread, QString& msg) : mxFunc(h,msg),
         timo(atimo), buff(abuff), read(aread)
     {}
 };
 int daqmx::readCounter(TaskHandle h, double timo, uInt32* buff, int32 &read, QString &msg)
 {
-    mxReadCounter mxf(h,timo,buff,read,errmsg);
+    mxReadCounter mxf(h,timo,buff,read,msg);
     daqmx::thread_->call_daqmx(&mxf);
     return mxf.retval;
 }
@@ -390,7 +389,7 @@ int daqmx::readCounter(TaskHandle h, double timo, uInt32* buff, int32 &read, QSt
 struct mxWriteAnalog : public mxFunc
 {
     const double& timo;
-    const double* buff;
+    double* buff;
     int32& written;
     virtual void operator()()
     {
@@ -399,13 +398,13 @@ struct mxWriteAnalog : public mxFunc
         checkError();
     }
 
-    mxWriteAnalog(TaskHandle h, const double &atimo, const double* abuff, int32& aread, QString& msg) : mxFunc(h,msg),
-        timo(atimo), buff(abuff), read(aread)
+    mxWriteAnalog(TaskHandle h, const double &atimo, double* abuff, int32& w, QString& msg) : mxFunc(h,msg),
+        timo(atimo), buff(abuff), written(w)
     {}
 };
 int daqmx::writeAnalog(TaskHandle h, double timo, const double *buff, int32 &written, QString &msg)
 {
-    mxWriteAnalog mxf(h,timo,buff,read,errmsg);
+    mxWriteAnalog mxf(h,timo,(double*)buff,written,msg);
     daqmx::thread_->call_daqmx(&mxf);
     return mxf.retval;
 }
@@ -418,17 +417,17 @@ struct mxWriteDigital : public mxFunc
     virtual void operator()()
     {
         retval = DAQmxBaseWriteDigitalU32(h,1,FALSE,timo,DAQmx_Val_GroupByChannel,
-                                    buff,&written,NULL);
+                                    (uInt32*)buff,&written,NULL);
         checkError();
     }
 
-    mxWriteDigital(TaskHandle h, const double &atimo, const uInt32* abuff, int32& aread, QString& msg) : mxFunc(h,msg),
-        timo(atimo), buff(abuff), read(aread)
+    mxWriteDigital(TaskHandle h, const double &atimo, const uInt32* abuff, int32& w, QString& msg) : mxFunc(h,msg),
+        timo(atimo), buff(abuff), written(w)
     {}
 };
 int daqmx::writeDigital(TaskHandle h, double timo, const uInt32* buff, int32 &written, QString &msg)
 {
-    mxWriteDigital mxf(h,timo,buff,read,errmsg);
+    mxWriteDigital mxf(h,timo,buff,written,msg);
     daqmx::thread_->call_daqmx(&mxf);
     return mxf.retval;
 }
