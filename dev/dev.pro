@@ -20,7 +20,6 @@ SOURCES += RtDev.cpp \
     RtTemperatureController.cpp \
     RtResistanceController.cpp \
     RtNiGpib.cpp \
-    Rt6602.cpp \
     RtAxis.cpp \
     rtdaqmxtask.cpp
 
@@ -41,7 +40,6 @@ HEADERS += RtDev.h \
     isa_pid.h \
     relaytuner.h \
     RtNiGpib.h \
-    Rt6602.h \
     RtAxis.h \
     rtdaqmxtask.h \
     daqmx.h

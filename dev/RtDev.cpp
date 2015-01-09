@@ -7,7 +7,6 @@
 #include "RtPowerSupply.h"
 #include "RtTemperatureController.h"
 #include "RtResistanceController.h"
-#include "Rt6602.h"
 #include "RtAxis.h"
 #include "rtdaqmxtask.h"
 
@@ -25,8 +24,7 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 		"  \"RS232\", Standard serial communications\n"
 		"  \"TCPIP\", Standard Tcp/Ip communications\n"
         "  \"NI-GPIB\", National Instr. GPIB card\n"
-        "  \"MODBUS-TCP\", Modbus over Tcp/Ip communications\n"
-        "  \"PCI6602\", National Instr. PCI-6602 counter card";
+        "  \"MODBUS-TCP\", Modbus over Tcp/Ip communications\n";
 
 	// check name
 	if (!checkName(name)) return;
@@ -36,8 +34,7 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	if      (type=="RS232") idx=0;
 	else if (type=="NI-GPIB") idx=1;
 	else if (type=="TCPIP") idx=2;    
-    else if (type=="PCI6602") idx=3;
-    else if (type=="MODBUS-TCP") idx=4;
+    else if (type=="MODBUS-TCP") idx=3;
 	else
 	{
 		throwScriptError(InvalidTypeMsg);
@@ -56,11 +53,8 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	case 2:
 		dev = new RtTcpip(name,this);
         break;
-    case 4:
-        dev = new RtModbusTcp(name,this);
-        break;
     case 3:
-        dev = new Rt6602(name,this,addr);
+        dev = new RtModbusTcp(name,this);
         break;
     }
 	createScriptObject(dev);
