@@ -84,8 +84,7 @@ unix {
 
     ############## NI DAQmx Base #########
     CONFIG += daqmxbase
-    # LIBS += -L$$DAQMX_PATH//Lib/msvc -lnidaqmx
-    # INCLUDEPATH += $$DAQMX_PATH/include/
+    LIBS += -lnidaqmxbase
 }
 
 OTHER_FILES += \
