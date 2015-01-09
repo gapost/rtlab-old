@@ -256,7 +256,7 @@ bool RtDAQmxTask::doReadWrite_()
 
     if (daqType_==AnalogInput)
         for(int i=0; i<nch; i++) channels_[i]->push(analogBuffer_[i]);
-    else if (daqType_==DigitalInput)
+    else if (daqType_==DigitalInput || daqType_==CountEdges)
         for(int i=0; i<nch; i++) channels_[i]->push(digitalBuffer_[i]);
 
     return true;

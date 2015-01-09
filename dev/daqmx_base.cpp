@@ -4,8 +4,21 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-struct mxFunc;
+// functor encapsulating a DAQmx Base function
+struct mxFunc
+{
+    TaskHandle h;
+    int32 retval;
+    QString& errmsg;
+    virtual void operator()() = 0;
+    void checkError()
+    {
+        if (retval!=0) errmsg = daqmx::getErrorMessage(0);
+    }
 
+    mxFunc(TaskHandle ah, QString& aerrmsg) : h(ah), errmsg(aerrmsg)
+    {}
+};
 
 /* A synchronization "pin"
  * The pin synchronizes the communication between a server and a client thread
@@ -146,22 +159,6 @@ public:
         input_pin.set_request(0);
         wait();
     }
-};
-
-// functor encapsulating a DAQmx Base function
-struct mxFunc
-{
-    TaskHandle h;
-    int32 retval;
-    QString& errmsg;
-    virtual void operator()() = 0;
-    void checkError()
-    {
-        if (retval!=0) errmsg = daqmx::getErrorMessage(0);
-    }
-
-    mxFunc(TaskHandle ah, QString& aerrmsg) : h(ah), errmsg(aerrmsg)
-    {}
 };
 
 daqmx_thread* daqmx::thread_ = 0;
