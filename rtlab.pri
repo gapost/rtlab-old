@@ -90,6 +90,7 @@ unix {
     ############## NI DAQmx Base #########
     CONFIG += daqmxbase
     LIBS += -lnidaqmxbase
+    DEFINES += USE_DAQMX_BASE
 }
 
 OTHER_FILES += \

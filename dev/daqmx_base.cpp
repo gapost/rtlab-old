@@ -4,14 +4,19 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-// functor encapsulating a DAQmx command
-struct mxfunc
+// functor encapsulating a DAQmx Base function
+struct mxFunc
 {
-    TaskHandle h;
+    TaskHandle& h;
     int32 retval;
-    QString errmsg;
+    QString& errmsg;
     virtual void operator()() = 0;
-    mxfunc(TaskHandle ah) : h(ah)
+    void checkError()
+    {
+        if (retval!=0) errmsg = daqmx::getErrorMessage(0);
+    }
+
+    mxFunc(TaskHandle& ah, QString& aerrmsg) : h(ah), errmsg(aerrmsg)
     {}
 };
 
@@ -20,7 +25,7 @@ class daqmx_thread : public QThread
 {
     QMutex mtx;
     QWaitCondition waitRequest, waitCompletion;
-    mxfunc* mxf;
+    mxFunc* mxf;
     bool quit_;
 public:
     daqmx_thread() : QThread()
@@ -56,7 +61,7 @@ public:
             if (quit_) break;
 
             // call the DAQmx function
-            f->operator()();
+            mxf->operator()();
 
             // unblock the caller
             mtx.lock();
@@ -66,11 +71,18 @@ public:
     }
     // this function is called from client threads
     // to perform a DAQmx function
-    void call_daqmx(mxfunc* g)
+    int call_daqmx(mxFunc* g)
     {
+        if (!isRunning())
+        {
+            g->retval = -1;
+            g->errmsg = "DAQmx Base thread not running";
+            return -1;
+        }
+
         // request the server to run the command
         mtx.lock();
-        f = g;
+        mxf = g;
         waitRequest.wakeOne(); // wake the server
         mtx.unlock();
 
@@ -78,6 +90,9 @@ public:
         mtx.lock();
         waitCompletion.wait(&mtx);
         mtx.unlock();
+
+        // return daqmx retval
+        return g->retval;
     }
     void quit()
     {
@@ -102,19 +117,33 @@ void daqmx::init()
 }
 QString daqmx::getErrorMessage(int c)
 {
-    int len = DAQmxGetErrorString(c, NULL, 0);
+    Q_UNUSED(c);
+    int len = DAQmxBaseGetExtendedErrorInfo(NULL,0);
     if (len) {
         QByteArray ar(len,char(0));
-        DAQmxGetErrorString(c, ar.data(), len);
+        DAQmxBaseGetExtendedErrorInfo(ar.data(), len);
         return QString(ar);
     }
     else return QString();
 }
+
+struct mxCreateTask : public mxFunc
+{
+    QString name;
+    virtual void operator()()
+    {
+        retval = DAQmxBaseCreateTask(name.toLatin1().constData(),&h);
+        checkError();
+    }
+
+    mxCreateTask(const QString& aname, TaskHandle& h, QString& msg) : mxFunc(h,msg), name(aname)
+    {}
+};
 int daqmx::createTask(const QString &name, TaskHandle &h, QString &errmsg)
 {
-    int ret = DAQmxCreateTask(name.toLatin1().constData(),&h);
-    if (ret!=0) errmsg = getErrorMessage(ret);
-    return ret;
+    mxCreateTask mxf(name, h, errmsg);
+    daqmx::thread_->call_daqmx(&mxf);
+    return mxf.retval;
 }
 int daqmx::clearTask(TaskHandle h, QString &errmsg)
 {
