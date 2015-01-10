@@ -20,7 +20,8 @@ SOURCES += RtDev.cpp \
     RtTemperatureController.cpp \
     RtResistanceController.cpp \
     RtAxis.cpp \
-    rtdaqmxtask.cpp
+    rtdaqmxtask.cpp \
+    rtgpib.cpp
 
 daqmxbase {
     SOURCES += daqmx_base.cpp
@@ -39,7 +40,8 @@ HEADERS += RtDev.h \
     relaytuner.h \
     RtAxis.h \
     rtdaqmxtask.h \
-    daqmx.h
+    daqmx.h \
+    rtgpib.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lRtCore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../core/debug/ -lRtCore
@@ -52,16 +54,16 @@ win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../core/releas
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../core/debug/RtCore.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../core/libRtCore.a
 
-win32 {
-    CONFIG(release, debug|release) {
-        LIBS += -L$$OUT_PWD/../wago_mbt/release/ -lwago_mbt
-        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/release/wago_mbt.lib
-    } else {
-        LIBS += -L$$OUT_PWD/../wago_mbt/debug/ -lwago_mbt
-        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/debug/wago_mbt.lib
-    }
-    INCLUDEPATH += $$PWD/../wago_mbt
-    DEPENDPATH += $$PWD/../wago_mbt
+#win32 {
+#    CONFIG(release, debug|release) {
+#        LIBS += -L$$OUT_PWD/../wago_mbt/release/ -lwago_mbt
+#        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/release/wago_mbt.lib
+#    } else {
+#        LIBS += -L$$OUT_PWD/../wago_mbt/debug/ -lwago_mbt
+#        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/debug/wago_mbt.lib
+#    }
+#    INCLUDEPATH += $$PWD/../wago_mbt
+#    DEPENDPATH += $$PWD/../wago_mbt
 
-}
+#}
 

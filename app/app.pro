@@ -58,18 +58,18 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../dev/libRtDev.a
 
 
 
-win32 {
-    CONFIG(release, debug|release) {
-        LIBS += -L$$OUT_PWD/../wago_mbt/release/ -lwago_mbt
-        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/release/wago_mbt.lib
-    } else {
-        LIBS += -L$$OUT_PWD/../wago_mbt/debug/ -lwago_mbt
-        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/debug/wago_mbt.lib
-    }
-    INCLUDEPATH += $$PWD/../wago_mbt
-    DEPENDPATH += $$PWD/../wago_mbt
+#win32 {
+#    CONFIG(release, debug|release) {
+#        LIBS += -L$$OUT_PWD/../wago_mbt/release/ -lwago_mbt
+#        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/release/wago_mbt.lib
+#    } else {
+#        LIBS += -L$$OUT_PWD/../wago_mbt/debug/ -lwago_mbt
+#        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/debug/wago_mbt.lib
+#    }
+#    INCLUDEPATH += $$PWD/../wago_mbt
+#    DEPENDPATH += $$PWD/../wago_mbt
 
-}
+#}
 
 unix:!macx:!symbian: LIBS += -L$$OUT_PWD/../core/ -lRtCore
 

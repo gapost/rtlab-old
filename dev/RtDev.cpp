@@ -8,6 +8,7 @@
 #include "RtResistanceController.h"
 #include "RtAxis.h"
 #include "rtdaqmxtask.h"
+#include "rtgpib.h"
 
 
 RtAcquisition::RtAcquisition(const QString& name, RtObject* parent) :
@@ -20,7 +21,8 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	static const char* InvalidTypeMsg = 
 		"Invalid interface type specification.\n"
 		"Valid types are:\n"
-        "  \"TCPIP\", Standard Tcp/Ip communications\n";
+        "  \"TCPIP\", Standard Tcp/Ip communications\n"
+        "  \"GPIB\", IEEE488.2 communications\n";
 
 	// check name
 	if (!checkName(name)) return;
@@ -28,7 +30,8 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	// check the type
 	int idx = -1;
     if (type=="TCPIP") idx=0;
-	else
+    if (type=="GPIB") idx=1;
+    else
 	{
 		throwScriptError(InvalidTypeMsg);
 		return;
@@ -39,6 +42,9 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	{
 	case 0:
 		dev = new RtTcpip(name,this);
+        break;
+    case 1:
+        dev = new RtGpib(name,this,addr);
         break;
     }
 	createScriptObject(dev);
