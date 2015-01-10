@@ -3,8 +3,10 @@
 #ifdef _WIN32
 // NI-GPIB
 #include <decl-32.h>
+#define LIB_NAME "NI488.2"
 #elif __linux__
 #include <gpib/ib.h>
+#define LIB_NAME "linux-gpib"
 #endif
 
 
@@ -68,7 +70,7 @@
     };
 
 RtGpib::RtGpib(const QString& name, RtObject* parent, uint id) :
-RtInterface(name,"NI-GPIB",parent,id)
+RtInterface(name,LIB_NAME,parent,id)
 {
     // 32 empty places
     ports_.fill(0, 32);

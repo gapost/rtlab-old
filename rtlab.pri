@@ -91,6 +91,9 @@ unix {
     CONFIG += daqmxbase
     LIBS += -lnidaqmxbase
     DEFINES += USE_DAQMX_BASE
+
+######### linux-gpib ############
+LIBS += -lgpib
 }
 
 OTHER_FILES += \
