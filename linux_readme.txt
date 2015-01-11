@@ -30,6 +30,9 @@ Package atlas.i686
   sudo ln -s /usr/lib/atlas/libcblas.so.3.0 /usr/lib/libcblas.so
   sudo ln -s /usr/lib/atlas/libatlas.so.3.0 /usr/lib/libatlas.so
 
+6. libmodbus - MODBUS/TCP (& RTU possible)
+   Install packages libmodbus.i686 & libmodbus-devel.i686 from EPEL repo
+
 NI DAQ notes
 ------------
 

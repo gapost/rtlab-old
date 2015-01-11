@@ -24,7 +24,7 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 		"Valid types are:\n"
         "  \"TCPIP\", Standard Tcp/Ip communications\n"
         "  \"GPIB\", IEEE488.2 communications\n"
-        "  \"MODBUS\", modbus protocol comms\n";
+        "  \"MODBUS-TCP\", modbus-tcp protocol comms\n";
 
 	// check name
 	if (!checkName(name)) return;
@@ -33,7 +33,7 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	int idx = -1;
     if (type=="TCPIP") idx=0;
     if (type=="GPIB") idx=1;
-    if (type=="MODBUS") idx=2;
+    if (type=="MODBUS-TCP") idx=2;
     else
 	{
 		throwScriptError(InvalidTypeMsg);

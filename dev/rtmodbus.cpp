@@ -2,6 +2,11 @@
 
 #include <modbus.h>
 
+//#elif __linux__
+#include <errno.h>
+//#endif
+
+
 RtModbus::RtModbus(const QString& name, RtObject* parent, const QString& host, uint portn) :
     RtTcpip(name, parent, host, portn), ctx_(0)
 {
@@ -26,7 +31,10 @@ bool RtModbus::open_()
         modbus_free(ctx);
         isOpen_ = false;
     }
-    else isOpen_ = true;
+    else {
+        isOpen_ = true;
+        ctx_ = ctx;
+    }
 
     emit propertiesChanged();
 
@@ -43,6 +51,7 @@ void RtModbus::close_()
         modbus_close(ctx);
         modbus_free(ctx);
         ctx_ = 0;
+        emit propertiesChanged();
     }
 }
 
