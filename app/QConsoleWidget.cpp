@@ -13,7 +13,7 @@
 #include <QScrollBar>
 
 
-QConsoleHistory QConsoleWidget::_history;
+QConsoleWidget::QConsoleHistory QConsoleWidget::_history;
 
 //-----------------------------------------------------------------------------
 
@@ -80,6 +80,13 @@ void QConsoleWidget::flushStdOut()
   if (!_stdErr.isEmpty()) {
     stdErr("\n");
   }
+}
+
+void QConsoleWidget::endSession()
+{
+	QWidget* w = window();
+	w->close();
+	//QCoreApplication::postEvent(window(),new QCloseEvent());
 }
 
 //-----------------------------------------------------------------------------
@@ -157,12 +164,12 @@ void QConsoleWidget::executeCode(const QString& code)
   //setTextCursor(cursor);
 
   // mark position
-  int cursorPosition = this->textCursor().position();
+  // int cursorPosition = this->textCursor().position();
 
   exec(code);
   flushStdOut();
 
-  bool textInserted = (this->textCursor().position() != cursorPosition);
+  // bool textInserted = (this->textCursor().position() != cursorPosition);
 
   // If a message was inserted, then put another empty line before the command prompt
   // to improve readability.
@@ -276,7 +283,7 @@ void QConsoleWidget::handleTabCompletion()
   if (!lookup.isEmpty() || !compareText.isEmpty()) {
     compareText = compareText.toLower();
     QStringList found;
-    QStringList l; // = PythonQt::self()->introspection(_context, lookup, PythonQt::Anything);
+    QStringList l = introspection(lookup); // PythonQt::self()->introspection(_context, lookup, PythonQt::Anything);
     foreach (QString n, l) {
       if (n.toLower().startsWith(compareText)) {
         found << n;
@@ -601,3 +608,78 @@ void QConsoleWidget::consoleMessage(const QString & message, const QTextCharForm
 	// Reset all font modifications done by the html string
 	setCurrentCharFormat(_defaultFormat);
 }
+
+/////////////////// QConsoleWidget::QConsoleHistory /////////////////////
+
+#define HISTORY_FILE "_command_history.lst"
+
+QConsoleWidget::QConsoleHistory::QConsoleHistory(void) : pos_(0), active_(false), maxsize_(10000)
+{
+    QFile f(HISTORY_FILE);
+    if (f.open(QFile::ReadOnly)) {
+        QTextStream is(&f);
+        while(!is.atEnd()) add(is.readLine());
+    }
+}
+QConsoleWidget::QConsoleHistory::~QConsoleHistory(void)
+{
+    QFile f(HISTORY_FILE);
+    if (f.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream os(&f);
+        int n = strings_.size();
+        while(n>0) os << strings_.at(--n) << endl;
+    }
+}
+
+void QConsoleWidget::QConsoleHistory::add(const QString& str)
+{
+    if (strings_.size() == maxsize_) strings_.pop_back();
+    strings_.push_front(str);
+    active_ = false;
+}
+
+void QConsoleWidget::QConsoleHistory::activate(const QString& tk)
+{
+    active_ = true;
+    token_ = tk;
+    pos_ = -1;
+}
+
+bool QConsoleWidget::QConsoleHistory::move(bool dir)
+{
+    if (active_)
+    {
+        int next = indexOf ( dir, pos_ );
+        if (pos_!=next)
+        {
+            pos_=next;
+            return true;
+        }
+        else return false;
+    }
+    else return false;
+}
+
+int QConsoleWidget::QConsoleHistory::indexOf(bool dir, int from) const
+{
+    int i = from, to = from;
+    if (dir)
+    {
+        while(i < strings_.size()-1)
+        {
+            const QString& si = strings_.at(++i);
+            if (si.startsWith(token_)) { return i; }
+        }
+    }
+    else
+    {
+        while(i > 0)
+        {
+            const QString& si = strings_.at(--i);
+            if (si.startsWith(token_)) { return i; }
+        }
+        return -1;
+    }
+    return to;
+}
+

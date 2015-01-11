@@ -45,6 +45,8 @@ public:
 
 	bool evaluate(const QScriptProgram& program, QString& ret);
 
+    QScriptEngine* getEngine() { return engine; }
+
 public slots:
 	void evaluate(const QString& program);
 	void abortEvaluation();

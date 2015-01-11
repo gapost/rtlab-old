@@ -18,6 +18,9 @@ protected:
 
   //! derived key press event
   virtual void keyPressEvent (QKeyEvent * e);
+
+    QStringList introspection(const QString& lookup);
+
 };
 
 #endif

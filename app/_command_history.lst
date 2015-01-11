@@ -79,3 +79,20 @@ dev.newInterface("gpib","GPIB")
 kill(find("*"))
 exec("script/testmodbus.qs")
 exec("script/testmodbus.qs")
+dev.newInterface("mdbus","MODBUS-TCP")
+dev.mdbus.host
+dev.mdbus.host = "100.100.100.5"
+dev.mdbus.open()
+dev.newInterface("mdb","MODBUS-TCP")
+a = dev.mdb
+dev.newInterface("mdb","MODBUS-TCP")
+dev.newInterface("mdb","MODBUS-TCP")
+a = dev.mdb
+a.isOpen
+a.isOpen()
+a.isOpen
+a.toString()
+a.timeout
+dev.newDAQmxTask("ctr")
+dev.ctr.armed
+beep()

@@ -1,11 +1,10 @@
 #ifndef _QCONSOLEWIDGET_H_
 #define _QCONSOLEWIDGET_H_
 
-//#include <QVariant>
-#include <QPlainTextEdit>
-//#include <QTextStream>
+//#include "RtGlobal.h"
 
-#include "QConsoleHistory.h"
+#include <QPlainTextEdit>
+
 
 class QCompleter;
 
@@ -20,12 +19,12 @@ public:
 
   ~QConsoleWidget();
 
-public: //slots:
+public slots:
   //! execute current line
-  Q_SLOT void executeLine(bool storeOnly);
+  void executeLine(bool storeOnly);
 
   //! output from console
-  Q_SLOT void consoleMessage(const QString & message, const QTextCharFormat& fmt);
+  void consoleMessage(const QString & message, const QTextCharFormat& fmt);
 
   //! get history
   // QStringList history() { return _history; }
@@ -34,20 +33,22 @@ public: //slots:
   // void setHistory(const QStringList& h) { _history = h; _historyPosition = 0; }
 
   //! clear the console
-  Q_SLOT void clear();
+  void clear();
 
   //! overridden to control which characters a user may delete
-  Q_SLOT virtual void cut();
+  virtual void cut();
 
   //! output redirection
-  Q_SLOT void stdOut(const QString& s);
+  void stdOut(const QString& s);
   //! output redirection
-  Q_SLOT void stdErr(const QString& s);
+  void stdErr(const QString& s);
+  //! output redirection
+  void endSession();
 
-  Q_SLOT void insertCompletion(const QString&);
+  void insertCompletion(const QString&);
 
   //! Appends a newline and command prompt at the end of the document.
-  Q_SLOT void appendCommandPrompt(bool storeOnly = false);
+  void appendCommandPrompt(bool storeOnly = false);
 
 protected:
   //! derived key press event
@@ -77,12 +78,39 @@ protected:
 
   virtual void exec(const QString& code) = 0;
   virtual bool canEvaluate(const QString& code) = 0;
+  virtual QStringList introspection(const QString& lookup) = 0;
 
 private:
   void executeCode(const QString& code);
 
-  //QStringList _history;
-  //int         _historyPosition;
+
+  class QConsoleHistory
+  {
+      QStringList strings_;
+      int pos_;
+      QString token_;
+      bool active_;
+      int maxsize_;
+  public:
+      QConsoleHistory(void);
+      ~QConsoleHistory(void);
+
+      void add(const QString& str);
+
+      const QString& currentValue() const
+      {
+          return pos_ == -1 ? token_ : strings_.at(pos_);
+      }
+
+      void activate(const QString& tk = QString());
+      void deactivate() { active_ = false; }
+      bool isActive() const { return active_; }
+
+      bool move(bool dir);
+
+      int indexOf(bool dir, int from) const;
+  };
+
   static QConsoleHistory _history;
 
   QString _clickedAnchor;

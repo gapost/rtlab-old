@@ -18,14 +18,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 SOURCES += main.cpp \
     QConsoleWidget.cpp \
-    QConsoleHistory.cpp \
     MainWindow.cpp \
     ScriptEditor.cpp \
     ScriptConsole.cpp
 
 HEADERS  += \
     QConsoleWidget.h \
-    QConsoleHistory.h \
     MainWindow.h \
     ScriptEditor.h \
     ScriptConsole.h

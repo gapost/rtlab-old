@@ -1,6 +1,8 @@
 #include <QCoreApplication>
 #include <QKeyEvent>
 #include <QMessageBox>
+#include <QScriptEngine>
+#include <QScriptValueIterator>
 
 #include "ScriptConsole.h"
 
@@ -77,4 +79,58 @@ void ScriptConsole::keyPressEvent (QKeyEvent * e)
 	
 	QConsoleWidget::keyPressEvent(e);
 }
+
+QStringList ScriptConsole::introspection(const QString& lookup)
+{
+    if (lookup.isEmpty()) return QStringList();
+
+    // try to find the object with name lookup
+    //RtObject* obj = RtObject::findByName(lookup);
+
+    // list of found tokens
+    QStringList properties;
+    QScriptEngine* eng = session->getEngine();
+    QScriptValue scriptObj = eng->globalObject();
+    bool objFound = false;
+
+    QStringList tokens = lookup.split('.');
+    do
+    {
+        objFound = false;
+
+        QString str = tokens.front();
+        tokens.pop_front();
+
+        QScriptValueIterator it(scriptObj);
+        while (it.hasNext())
+        {
+            it.next();
+            QString valueName = it.name();
+            if (valueName==str)
+            {
+                scriptObj = it.value();
+                objFound = true;
+                break;
+            }
+        }
+    }
+    while (objFound && !tokens.isEmpty());
+
+
+    if (objFound)
+    {
+        QScriptValueIterator it(scriptObj);
+        while (it.hasNext()) {
+             it.next();
+             if (it.flags() & QScriptValue::SkipInEnumeration)
+                 continue;
+             properties << it.name();
+         }
+    }
+
+    return properties;
+
+}
+
+
 
