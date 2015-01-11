@@ -56,6 +56,12 @@ win32 {
         LIBS += -lmuparser
     }
 
+    ############# libmodbus ##############
+    LIBMODBUS_PATH = $$PWD/../3rdparty/libmodbus-3.1.1/src
+    INCLUDEPATH += $$LIBMODBUS_PATH
+    LIBS += -lsetupapi -lwsock32 ws2_32.lib advapi32.lib
+
+
     ######## Win32 Libs ##########
     LIBS += winmm.lib user32.lib
 

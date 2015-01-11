@@ -21,7 +21,8 @@ SOURCES += RtDev.cpp \
     RtResistanceController.cpp \
     RtAxis.cpp \
     rtdaqmxtask.cpp \
-    rtgpib.cpp
+    rtgpib.cpp \
+    rtmodbus.cpp
 
 daqmxbase {
     SOURCES += daqmx_base.cpp
@@ -41,7 +42,18 @@ HEADERS += RtDev.h \
     RtAxis.h \
     rtdaqmxtask.h \
     daqmx.h \
-    rtgpib.h
+    rtgpib.h \
+    rtmodbus.h
+
+win32 {
+SOURCES += $$LIBMODBUS_PATH/modbus.c \
+        $$LIBMODBUS_PATH/modbus-data.c \
+        $$LIBMODBUS_PATH/modbus-rtu.c \
+        $$LIBMODBUS_PATH/modbus-tcp.c
+
+HEADERS += $$LIBMODBUS_PATH/modbus.h \
+        $$LIBMODBUS_PATH/config.h
+}
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lRtCore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../core/debug/ -lRtCore

@@ -9,6 +9,7 @@
 #include "RtAxis.h"
 #include "rtdaqmxtask.h"
 #include "rtgpib.h"
+#include "rtmodbus.h"
 
 
 RtAcquisition::RtAcquisition(const QString& name, RtObject* parent) :
@@ -22,7 +23,8 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 		"Invalid interface type specification.\n"
 		"Valid types are:\n"
         "  \"TCPIP\", Standard Tcp/Ip communications\n"
-        "  \"GPIB\", IEEE488.2 communications\n";
+        "  \"GPIB\", IEEE488.2 communications\n"
+        "  \"MODBUS\", modbus protocol comms\n";
 
 	// check name
 	if (!checkName(name)) return;
@@ -31,6 +33,7 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	int idx = -1;
     if (type=="TCPIP") idx=0;
     if (type=="GPIB") idx=1;
+    if (type=="MODBUS") idx=2;
     else
 	{
 		throwScriptError(InvalidTypeMsg);
@@ -45,6 +48,9 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
         break;
     case 1:
         dev = new RtGpib(name,this,addr);
+        break;
+    case 2:
+        dev = new RtModbus(name,this);
         break;
     }
 	createScriptObject(dev);
