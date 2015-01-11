@@ -337,6 +337,49 @@ QString RtObject::listFunctions() const
 	return S;
 }
 
+//###################
+
+typedef RtObject* RtObjectStar;
+
+QScriptValue toScriptValue(QScriptEngine *eng, const RtObjectStar& obj)
+{
+    return eng->newQObject(obj,
+                           QScriptEngine::AutoOwnership,
+                           QScriptEngine::ExcludeDeleteLater);
+}
+
+void fromScriptValue(const QScriptValue &value, RtObjectStar& obj)
+{
+    obj = qobject_cast<RtObject*>(value.toQObject());
+}
+
+QScriptValue toScriptValue(QScriptEngine *eng, const RtObjectList& L)
+{
+    QScriptValue V = eng->newArray();
+    RtObjectList::const_iterator begin = L.begin();
+    RtObjectList::const_iterator end = L.end();
+    RtObjectList::const_iterator it;
+    for (it = begin; it != end; ++it)
+        V.setProperty(quint32(it - begin), qScriptValueFromValue(eng, *it));
+    return V;
+}
+
+void fromScriptValue(const QScriptValue &value, RtObjectList& L)
+{
+    quint32 len = value.property("length").toUInt32();
+    for (quint32 i = 0; i < len; ++i) {
+        QScriptValue item = value.property(i);
+        L.push_back(qscriptvalue_cast<RtObject*>(item));
+    }
+}
+
+int registerRtObjectStar(QScriptEngine* eng)
+{
+    int i1 = qScriptRegisterMetaType<RtObjectStar>(eng,toScriptValue,fromScriptValue);
+    int i2 = qScriptRegisterMetaType<RtObjectList>(eng,toScriptValue,fromScriptValue);
+    return i1 && i2;
+}
+
 
 
 

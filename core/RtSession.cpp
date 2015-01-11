@@ -11,40 +11,61 @@
 #include <QCoreApplication>
 #include <QPointer>
 #include <QStringList>
-
+#include <QScriptValueIterator>
+#include <QDir>
 
 
 #define PROC_EVENTS_INTERVAL 250
 
 RtSession::RtSession(const QString& name, RtObject* parent) : RtObject(name,"session",parent)
 {
-	engine = new QScriptEngine(this);
-	engine->setProcessEventsInterval ( PROC_EVENTS_INTERVAL );
-	register_functions();
+    engine_ = new QScriptEngine(this);
+    engine_->setProcessEventsInterval ( PROC_EVENTS_INTERVAL );
+    wait_timer_ = new QTimer(this);
+    wait_timer_->setSingleShot(true);
 
-        const QObjectList& chlist = root_.children();
+    // register RtObject* with the engine (and RtObjectList)
+    registerRtObjectStar(engine_);
 
-        foreach(QObject* o, chlist)
+    // register basic types with the engine
+    registerVectorTypes(engine_);
+
+    QScriptValue self = engine_->newQObject(
+        this, QScriptEngine::QtOwnership,
+        QScriptEngine::ExcludeSuperClassContents);
+
+    QScriptValue globObj = engine_->globalObject();
+    {
+        QScriptValueIterator it(globObj);
+        while (it.hasNext()) {
+            it.next();
+            self.setProperty(it.scriptName(), it.value(), it.flags());
+        }
+    }
+
+    engine_->setGlobalObject(self);
+
+    engine_->collectGarbage();
+
+    const QObjectList& chlist = root_.children();
+
+    foreach(QObject* o, chlist)
 	{
 		RtObject* rto = qobject_cast<RtObject*>(o);
 		if (rto) 
 		{
-			QScriptValue v = engine->newQObject(rto,
+            QScriptValue v = engine_->newQObject(rto,
 				QScriptEngine::QtOwnership,
 				QScriptEngine::ExcludeDeleteLater
 				);
 
-			engine->globalObject().setProperty(
+            engine_->globalObject().setProperty(
 				rto->objectName(),
 				v,
 				QScriptValue::Undeletable
 				);
 		}
 	}
-
-	wait_timer_ = new QTimer(this);
-	wait_timer_->setSingleShot(true);
-
 }
 
 RtSession::~RtSession( void)
@@ -52,42 +73,13 @@ RtSession::~RtSession( void)
 	Q_ASSERT(!isEvaluating());
 }
 
-void RtSession::register_functions()
-{
-    QScriptValue global = engine->globalObject();
-
-	QScriptValue quitFunction = engine->newFunction(quit_func);
-    global.setProperty(QLatin1String("quit"), quitFunction);
-	QScriptValue execFunction = engine->newFunction(exec_func);
-    global.setProperty(QLatin1String("exec"), execFunction);
-	QScriptValue printFunction = engine->newFunction(print_func);
-    global.setProperty(QLatin1String("print"), printFunction);
-	QScriptValue killFunction = engine->newFunction(kill_func);
-    global.setProperty(QLatin1String("kill"), killFunction);
-	QScriptValue waitFunction = engine->newFunction(wait_func);
-    global.setProperty(QLatin1String("wait"), waitFunction);
-	QScriptValue findFunction = engine->newFunction(find_func);
-    global.setProperty(QLatin1String("find"), findFunction);
-	QScriptValue textSaveFunction = engine->newFunction(textSave_func);
-    global.setProperty(QLatin1String("textSave"), textSaveFunction);
-	QScriptValue textLoadFunction = engine->newFunction(textLoad_func);
-    global.setProperty(QLatin1String("textLoad"), textLoadFunction);
-	QScriptValue h5writeFunction = engine->newFunction(h5write_func);
-    global.setProperty(QLatin1String("h5write"), h5writeFunction);
-	QScriptValue beepFunction = engine->newFunction(beep_func);
-    global.setProperty(QLatin1String("beep"), beepFunction);
-
-	registerVectorTypes(engine);
-}
-
-
 void RtSession::evaluate(const QString& program)
 {
 	//if (code=="quit")
-	QScriptValue result = engine->evaluate(program);
+    QScriptValue result = engine_->evaluate(program);
 
-    if (engine->hasUncaughtException()) {
-        QStringList backtrace = engine->uncaughtExceptionBacktrace();
+    if (engine_->hasUncaughtException()) {
+        QStringList backtrace = engine_->uncaughtExceptionBacktrace();
 		QString msg(result.toString());
 		msg += '\n';
 		msg += backtrace.join("\n");
@@ -109,11 +101,11 @@ void RtSession::evaluate(const QString& program)
 
 bool RtSession::evaluate(const QScriptProgram& program, QString& ret)
 {
-	QScriptValue result = engine->evaluate(program);
+    QScriptValue result = engine_->evaluate(program);
 
-    if (engine->hasUncaughtException()) 
+    if (engine_->hasUncaughtException())
 	{
-        QStringList backtrace = engine->uncaughtExceptionBacktrace();
+        QStringList backtrace = engine_->uncaughtExceptionBacktrace();
 		ret = result.toString();
 		ret += '\n';
 		ret += backtrace.join("\n");
@@ -131,298 +123,126 @@ bool RtSession::evaluate(const QScriptProgram& program, QString& ret)
 
 bool RtSession::canEvaluate(const QString& program)
 {
-	return engine->canEvaluate(program);
+    return engine_->canEvaluate(program);
 }
 
-bool RtSession::wait(uint ms)
+void RtSession::wait(uint ms)
 {
 	wait_timer_->start(ms);
 	wait_aborted_ = false;
+
 	do 
 		QCoreApplication::processEvents(QEventLoop::WaitForMoreEvents, PROC_EVENTS_INTERVAL); 
 	while (wait_timer_->isActive());
-	return wait_aborted_;
+
+    if (wait_aborted_)
+        engine_->currentContext()->throwError(QScriptContext::UnknownError,"Wait Aborted.");
 }
 
 void RtSession::abortEvaluation()
 {
-	//if (wait_timer_->isActive())
-	//{
-		wait_timer_->stop();
-		wait_aborted_ = true;
-	//}
-	engine->abortEvaluation();
+    wait_timer_->stop();
+    wait_aborted_ = true;
+    engine_->abortEvaluation();
 }
 
 bool RtSession::isEvaluating() const
 {
-	return engine->isEvaluating();
+    return engine_->isEvaluating();
 }
 
-QScriptValue RtSession::wait_func(QScriptContext *ctx, QScriptEngine *eng)
+void RtSession::exec(const QString &fname)
 {
-	static const char* usage = 
-		"usage: wait(uint ms)";
-
-	uint ms;
-	
-	// check arguments
-	if (ctx->argumentCount()!=1)
-	{
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	}
-
-	QScriptValue arg = ctx->argument(0);
-	if (arg.isNumber()) ms = arg.toUInt32();
-	else return ctx->throwError(QScriptContext::SyntaxError,usage);
-
-	RtSession* s = qobject_cast<RtSession*>(eng->parent());
-	//s->wait(ms);
-	//if (s->abortController_->isRunning())
-	if (s->wait(ms))
-	{
-		ctx->throwError(QScriptContext::UnknownError,"Wait Aborted.");
-	}
-	
-    return eng->undefinedValue();
+    QFile file(fname);
+    if (file.open(QIODevice::Text | QIODevice::ReadOnly))
+    {
+        QTextStream qin(&file);
+        QString program = qin.readAll();
+        engine_->evaluate(program,fname);
+    }
+    else engine_->currentContext()->throwError(QScriptContext::ReferenceError,"File not found.");
 }
-
-QScriptValue RtSession::quit_func(QScriptContext *ctx, QScriptEngine *eng)
+void RtSession::print(const QString& str)
 {
-    Q_UNUSED(ctx);
-
-	RtSession* s = qobject_cast<RtSession*>(eng->parent());
-	if (s) s->endSession();
-	//emit endSession();
-    return eng->undefinedValue();
+    stdOut(str);
+    if (!str.endsWith('\n')) stdOut(QString('\n'));
 }
-
-QScriptValue RtSession::exec_func(QScriptContext *ctx, QScriptEngine *eng)
+void RtSession::textSave(const QString &str, const QString &fname)
 {
-	static const char* usage = 
-		"usage: exec(String script_name)";
-	QString fname;
-
-	// check arguments
-	if (ctx->argumentCount()!=1)
-	{
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	}
-	QScriptValue arg = ctx->argument(0);
-	if (arg.isString()) fname = arg.toString();
-	else
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-
-	QFile file(fname);
-	if (file.open(QIODevice::Text | QIODevice::ReadOnly))
-	{
-		QTextStream qin(&file);
-		QString program = qin.readAll();
-		ctx->setActivationObject(ctx->parentContext()->activationObject());
-		ctx->setThisObject(ctx->parentContext()->thisObject());
-		return eng->evaluate(program,fname);
-	}
-	else return ctx->throwError(QScriptContext::ReferenceError,"File not found.");
-
-    return eng->undefinedValue();
+    QFile file(fname);
+    if (file.open(QFile::WriteOnly | QFile::Truncate))
+    {
+        QTextStream qout(&file);
+        qout << str;
+    }
+    else engine_->currentContext()->throwError("File could not be opened.");
 }
 
-QScriptValue RtSession::print_func(QScriptContext *context, QScriptEngine *eng)
+QString RtSession::textLoad(const QString &fname)
 {
-	static const char* usage = 
-		"usage: print(String s)";
-	QString str;
-
-	// check arguments
-	if (context->argumentCount()!=1)
-	{
-		return context->throwError(QScriptContext::SyntaxError,usage);
-	}
-	
-	str = context->argument(0).toString();
-	str += '\n';
-	RtSession* s = qobject_cast<RtSession*>(eng->parent());
-	if (s) s->stdOut(str);
-
-
-    return eng->undefinedValue();
+    QString str;
+    QFile file(fname);
+    if (file.open(QFile::ReadOnly))
+    {
+        QTextStream qin(&file);
+        str = qin.readAll();
+    }
+    else engine_->currentContext()->throwError("File could not be opened.");
+    return str;
 }
 
-QScriptValue RtSession::textSave_func(QScriptContext *ctx, QScriptEngine *eng)
+void RtSession::quit()
 {
-	static const char* usage = 
-		"usage: textSave(String str, String filename)";
-
-	// check arguments
-	if (ctx->argumentCount()!=2)
-	{
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	}
-
-	QString str, fname;
-	QScriptValue arg;
-	
-	arg = ctx->argument(0);
-	if (!arg.isString()) 
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	else str = arg.toString();
-
-	arg = ctx->argument(1);
-	if (arg.isString()) fname = arg.toString();
-	else
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-
-	QFile file(fname);
-	if (file.open(QFile::WriteOnly | QFile::Truncate))
-	{
-		QTextStream qout(&file);
-		qout << str;
-	}
-	else return ctx->throwError("File could not be opened.");
-
-    return eng->undefinedValue();
+    emit endSession();
 }
-QScriptValue RtSession::textLoad_func(QScriptContext *ctx, QScriptEngine *eng)
+void RtSession::kill(RtObjectList objList)
 {
-	static const char* usage = 
-		"usage: String textLoad(String filename)";
-
-	// check arguments
-	if (ctx->argumentCount()!=1)
-	{
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	}
-
-	QString fname, str;
-	QScriptValue arg;
-	
-	arg = ctx->argument(0);
-	if (!arg.isString()) 
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	else fname = arg.toString();
-
-	QFile file(fname);
-	if (file.open(QFile::ReadOnly))
-	{
-		QTextStream qin(&file);
-		str = qin.readAll();
-	}
-	else return ctx->throwError("File could not be opened.");
-
-	return eng->toScriptValue(str);
+    foreach(RtObject* o, objList)
+    {
+        if (o->canBeKilled()) {
+            o->detach();
+            delete o;
+        }
+    }
 }
-
-QScriptValue RtSession::kill_func(QScriptContext *ctx, QScriptEngine *eng)
+RtObjectList RtSession::find(const QString& wc)
 {
-	static const char* usage = 
-		"usage:\n"
-		"  kill(RtObject obj)\n";
-		//"  kill(String str), where str is a name matching string, e.g. \"*\" or \"dev.*\"";
-
-	// check arguments
-	if (ctx->argumentCount()!=1)
-	{
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	}
-
-	QScriptValue arg = ctx->argument(0);
-	RtObject* obj;
-	if ( arg.isQObject() && (obj = qobject_cast<RtObject*>(arg.toQObject())) )
-	{
-		if (obj->canBeKilled()) 
-		{
-			obj->detach();
-			delete obj;
-		}
-		return eng->undefinedValue();
-	}
-
-	if (arg.isArray())
-	{
-		// find all valid objects that can be killed
-		QList< QPointer<RtObject> > toKill;
-		quint32 n = arg.property("length").toUInt32();
-		for(quint32 i=0; i<n; ++i)
-		{
-			RtObject* obj = qobject_cast<RtObject*>(arg.property(i).toQObject());
-			if (obj && obj->canBeKilled()) toKill.push_back(obj);
-		}
-
-		// first detach
-		foreach(QPointer<RtObject> obj, toKill) obj->detach();
-		// then kill!
-		foreach(QPointer<RtObject> obj, toKill) if (obj) delete obj;
-
-		return eng->undefinedValue();
-	}
-
-	return ctx->throwError(QScriptContext::SyntaxError,usage);
-
+    return RtObject::findByWildcard(wc);
 }
-
-QScriptValue RtSession::find_func(QScriptContext *ctx, QScriptEngine *eng)
+void RtSession::h5write(const QString& fname, const QString& comment)
 {
-	static const char* usage = 
-		"usage: find(String)";
-
-	// check arguments
-	if (ctx->argumentCount()!=1)
-	{
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	}
-
-	QScriptValue arg = ctx->argument(0);
-	if ( arg.isString() )
-	{
-		QList<RtObject*> lst = RtObject::findByWildcard(arg.toString());
-		QScriptValue ret = eng->newArray(lst.size());
-		for(quint32 i=0; i<lst.size(); ++i)
-		{
-			ret.setProperty(i, eng->newQObject(lst.at(i)));
-		}
-		return ret;
-	}
-	else return ctx->throwError(QScriptContext::SyntaxError,usage);
-
+    QString ret = root()->h5write(fname,comment);
+    if (!ret.isNull())  engine_->currentContext()->throwError(ret);
 }
-QScriptValue RtSession::h5write_func(QScriptContext *ctx, QScriptEngine *e)
+void RtSession::beep()
 {
-	static const char* usage = 
-		"usage: h5write(String fileName, String comment)";
-
-	// check arguments
-	if (ctx->argumentCount()!=2)
-	{
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	}
-
-	QString fname,comment;
-	QScriptValue arg = ctx->argument(0);
-	if ( arg.isString() ) fname=arg.toString();
-	else return ctx->throwError(QScriptContext::SyntaxError,usage);
-	arg = ctx->argument(1);
-	if ( arg.isString() ) comment=arg.toString();
-	else return ctx->throwError(QScriptContext::SyntaxError,usage);
-
-	QString ret = root()->h5write(fname,comment);
-
-	if (ret.isNull()) return e->undefinedValue();
-	else return ctx->throwError(ret);
+    os::beep();
 }
-
-QScriptValue RtSession::beep_func(QScriptContext *ctx, QScriptEngine *e)
+QString RtSession::pwd()
 {
-	static const char* usage = 
-		"usage: beep()";
-
-	// check arguments
-	if (ctx->argumentCount()!=0)
-	{
-		return ctx->throwError(QScriptContext::SyntaxError,usage);
-	}
-
-        os::beep();
-
-	return e->undefinedValue();
+    return QDir::currentPath();
 }
+
+bool RtSession::cd(const QString &path)
+{
+    QDir dir = QDir::current();
+    bool ret = dir.cd(path);
+    if (ret) QDir::setCurrent(dir.path());
+    return ret;
+}
+
+QStringList RtSession::dir(const QStringList& filters)
+{
+    return QDir::current().entryList(filters);
+}
+QStringList RtSession::dir(const QString& filter)
+{
+    return dir(QStringList(filter));
+}
+bool RtSession::isDir(const QString& name)
+{
+    QFileInfo fi(name);
+    return fi.isDir();
+}
+
 

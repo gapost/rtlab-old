@@ -7,6 +7,7 @@
 #include <QList>
 #include <QSet>
 #include <QScriptable>
+#include <QMetaType>
 
 #include "RtEvent.h"
 
@@ -175,5 +176,11 @@ protected:
 	RtObject::ErrorEntry e;
 };
 
+typedef QList<RtObject*> RtObjectList;
+
+Q_DECLARE_METATYPE(RtObject*)
+Q_DECLARE_METATYPE(RtObjectList)
+
+int registerRtObjectStar(QScriptEngine* eng);
 
 #endif
