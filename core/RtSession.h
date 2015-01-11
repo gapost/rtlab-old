@@ -55,6 +55,9 @@ public slots:
     QStringList dir(const QStringList& filters = QStringList());
     QStringList dir(const QString& filter);
     bool isDir(const QString& name);
+    // windows
+    void saveWindowState(const QString& fname);
+    void restoreWindowState(const QString& fname);
 
 
 signals:

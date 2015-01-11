@@ -18,6 +18,7 @@ RtMainWindow::~RtMainWindow(void)
 void RtMainWindow::createDockers()
 {
     QDockWidget *dock = new QDockWidget("Object Inspector", this);
+    dock->setObjectName("objectInspectorDocker");
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	objectInspector = new RtObjectInspector(dock);   
     dock->setWidget(objectInspector);
@@ -25,6 +26,7 @@ void RtMainWindow::createDockers()
     toggleDockersActions << dock->toggleViewAction();
 
     dock = new QDockWidget("Property Browser", this);
+    dock->setObjectName("propertyBrowserDocker");
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	propertyBrowser = new RtPropertyBrowser(dock);   
     dock->setWidget(propertyBrowser);
@@ -32,6 +34,7 @@ void RtMainWindow::createDockers()
     toggleDockersActions << dock->toggleViewAction();
 
     dock = new QDockWidget("Function Browser", this);
+    dock->setObjectName("functionBrowserDocker");
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	functionBrowser = new RtFunctionBrowser(dock);   
     dock->setWidget(functionBrowser);
@@ -39,6 +42,7 @@ void RtMainWindow::createDockers()
     toggleDockersActions << dock->toggleViewAction();
 
 	dock = new QDockWidget("Channel Viewer", this);
+    dock->setObjectName("channelViewerDocker");
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	channelViewer_ = new RtChannelViewer(dock);   
     dock->setWidget(channelViewer_);
@@ -46,7 +50,8 @@ void RtMainWindow::createDockers()
     toggleDockersActions << dock->toggleViewAction();
 
 	dock = new QDockWidget("Error Log", this);
-    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    dock->setObjectName("errorLogDocker");
+    dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
 	errorLog = new RtErrorLog(dock);   
     dock->setWidget(errorLog);
     addDockWidget(Qt::RightDockWidgetArea, dock);
@@ -74,9 +79,10 @@ void RtMainWindow::addFigureWindow(QWidget *child)
 	mdiArea->addSubWindow(subWindow);
 }
 
-void RtMainWindow::addDockPane(QWidget *child)
+void RtMainWindow::addDockPane(QWidget *child, const QString& name)
 {
 	QDockWidget *dock = new QDockWidget(this);
+    dock->setObjectName(name);
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	//dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
     dock->setWidget(child);

@@ -121,6 +121,7 @@ RtFigurePane::RtFigurePane(const QString& name, RtFigureFolder* parent, int rows
 RtFigureItem(name,"Rt Figure",parent)
 {
 	widget_ = new NoCloseWidget;
+    widget_->setObjectName(name+"Widget");
 	QGridLayout* layout = new QGridLayout();
 
 	int k = 1;
@@ -292,7 +293,7 @@ RtWidgetPane::RtWidgetPane(const QString& name, QWidget* w, RtFigureFolder* pare
 RtFigureItem(name,"Rt widget pane",parent)
 {
 	widget_ = w;
-	root_.mainWindow()->addDockPane(widget_);
+    root_.mainWindow()->addDockPane(widget_,name + "Docker");
 	widget_->window()->setWindowTitle(name);
 	widget_->window()->show();
 }
@@ -389,14 +390,6 @@ void RtWidgetPane::bind(RtObject* obj, const QString& propertyName, QWidget* w, 
 
 
 }
-
-
-
-/*void RtWidgetPane::rtEvent(RtEvent* rte)
-{
-	RtFigureItem::rtEvent(rte);
-}*/
-
 
 
 //************************************************************************************//

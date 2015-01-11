@@ -1,6 +1,7 @@
 #include "RtSession.h"
 #include "RtRoot.h"
 #include "RtTypes.h"
+#include "RtMainWindow.h"
 #include "os_utils.h"
 
 #include <QDebug>
@@ -243,6 +244,32 @@ bool RtSession::isDir(const QString& name)
 {
     QFileInfo fi(name);
     return fi.isDir();
+}
+void RtSession::saveWindowState(const QString& fname)
+{
+    QByteArray ba_geometry = root()->mainWindow()->saveGeometry();
+    QByteArray ba_state = root()->mainWindow()->saveState();
+    QFile file(fname);
+    if (file.open(QFile::WriteOnly | QFile::Truncate))
+    {
+        QDataStream qout(&file);
+        qout << ba_geometry << ba_state;
+    }
+    else engine_->currentContext()->throwError("File could not be opened.");
+}
+
+void RtSession::restoreWindowState(const QString& fname)
+{
+    QFile file(fname);
+    QByteArray ba_geometry,ba_state;
+    if (file.open(QFile::ReadOnly))
+    {
+        QDataStream qin(&file);
+        qin >> ba_geometry >> ba_state;
+    }
+    else engine_->currentContext()->throwError("File could not be opened.");
+    root()->mainWindow()->restoreGeometry(ba_geometry);
+    root()->mainWindow()->restoreState(ba_state);
 }
 
 
