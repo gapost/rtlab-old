@@ -2,6 +2,7 @@
 #define DAQMX_H
 
 #include <QString>
+#include <QAtomicInt>
 
 #ifdef USE_DAQMX_BASE
 #include <NIDAQmxBase.h>
@@ -13,9 +14,13 @@ class daqmx_thread;
 
 struct daqmx
 {
+private:
+    static QAtomicInt refcount_;
     static daqmx_thread* thread_;
 
+public:
     static void init();
+    //static void deinit();
 
     static QString getErrorMessage(int c);
     static int createTask(const QString& name, TaskHandle& h, QString& errmsg);

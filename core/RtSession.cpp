@@ -198,9 +198,9 @@ void RtSession::quit()
 }
 void RtSession::kill(RtObjectList objList)
 {
-    foreach(RtObject* o, objList)
+    foreach(RtObject* o, objList)read
     {
-        if (o->canBeKilled()) {
+        if (o && o->canBeKilled()) {
             o->detach();
             delete o;
         }

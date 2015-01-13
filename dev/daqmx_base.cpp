@@ -162,6 +162,7 @@ public:
 };
 
 daqmx_thread* daqmx::thread_ = 0;
+QAtomicInt daqmx::refcount_;
 
 void daqmx::init()
 {
@@ -169,7 +170,16 @@ void daqmx::init()
         thread_ = new daqmx_thread();
         thread_->start();
     }
+    refcount_.ref();
 }
+//void daqmx::deinit()
+//{
+//    if (!refcount_.deref())
+//    {
+//        thread_->quit();
+//    }
+//}
+
 QString daqmx::getErrorMessage(int c)
 {
     Q_UNUSED(c);

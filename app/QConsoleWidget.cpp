@@ -11,6 +11,7 @@
 #include <QCompleter>
 #include <QStringListModel>
 #include <QScrollBar>
+#include <QFile>
 
 
 QConsoleWidget::QConsoleHistory QConsoleWidget::_history;
