@@ -159,6 +159,13 @@ void RtSession::exec(const QString &fname)
     {
         QTextStream qin(&file);
         QString program = qin.readAll();
+
+        QScriptContext* ctx = engine_->currentContext();
+
+        ctx->setActivationObject(ctx->parentContext()->activationObject());
+        ctx->setThisObject(ctx->parentContext()->thisObject());
+
+
         engine_->evaluate(program,fname);
     }
     else engine_->currentContext()->throwError(QScriptContext::ReferenceError,"File not found.");
@@ -198,7 +205,7 @@ void RtSession::quit()
 }
 void RtSession::kill(RtObjectList objList)
 {
-    foreach(RtObject* o, objList)read
+    foreach(RtObject* o, objList)
     {
         if (o && o->canBeKilled()) {
             o->detach();
@@ -206,6 +213,14 @@ void RtSession::kill(RtObjectList objList)
         }
     }
 }
+void RtSession::kill(RtObject *obj)
+{
+    if (obj && obj->canBeKilled()) {
+        obj->detach();
+        delete obj;
+    }
+}
+
 RtObjectList RtSession::find(const QString& wc)
 {
     return RtObject::findByWildcard(wc);
@@ -231,7 +246,6 @@ bool RtSession::cd(const QString &path)
     if (ret) QDir::setCurrent(dir.path());
     return ret;
 }
-
 QStringList RtSession::dir(const QStringList& filters)
 {
     return QDir::current().entryList(filters);
@@ -266,10 +280,11 @@ void RtSession::restoreWindowState(const QString& fname)
     {
         QDataStream qin(&file);
         qin >> ba_geometry >> ba_state;
+        root()->mainWindow()->restoreGeometry(ba_geometry);
+        root()->mainWindow()->restoreState(ba_state);
     }
-    else engine_->currentContext()->throwError("File could not be opened.");
-    root()->mainWindow()->restoreGeometry(ba_geometry);
-    root()->mainWindow()->restoreState(ba_state);
+    // if file could not open do nothing
+    //else engine_->currentContext()->throwError("File could not be opened.");
 }
 
 

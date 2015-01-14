@@ -9,7 +9,13 @@ class ScriptConsole : public QConsoleWidget
 {
 	RtSession* session;
 public:
-	ScriptConsole(void);
+    ScriptConsole();
+
+    void evaluate(const QString& code)
+    {
+        exec(code);
+    }
+
 protected:
 	void exec(const QString& code);
 	bool canEvaluate(const QString& code);

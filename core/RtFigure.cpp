@@ -135,7 +135,7 @@ RtFigureItem(name,"Rt Figure",parent)
 		}
 	}
 	widget_->setLayout(layout);
-	root_.mainWindow()->addFigureWindow(widget_);
+    root_.mainWindow()->addFigureWindow(widget_, name + "Widget");
 	widget_->setWindowTitle(name);
 	widget_->show();
 }

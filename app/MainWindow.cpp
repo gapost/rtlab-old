@@ -6,7 +6,7 @@
 //#include "RtObjectInspector.h"
 #include "RtRoot.h"
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(const QString &startupScript)
 {
     mdiArea = new QMdiArea;
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -31,7 +31,7 @@ MainWindow::MainWindow()
 
 	RtObject::root()->setMainWindow(this);
 
-	newConsole();
+    newConsole(startupScript);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -52,12 +52,15 @@ void MainWindow::newFile()
     child->show();
 }
 
-void MainWindow::newConsole()
+void MainWindow::newConsole(const QString& startupScript)
 {
 	static int i = 1;
     ScriptConsole *child = createScriptConsole();
-	child->setWindowTitle(QString("Console:%1").arg(i++));
+    QString name = QString("Console:%1").arg(i++);
+    child->setWindowTitle(name);
+    child->setObjectName(name);
     child->show();
+    child->evaluate(startupScript);
 }
 
 void MainWindow::open()
