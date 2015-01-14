@@ -16,14 +16,14 @@ class MainWindow : public RtMainWindow
     Q_OBJECT
 
 public:
-    MainWindow();
+    MainWindow(const QString& startupScript = QString());
 
 protected:
     void closeEvent(QCloseEvent *event);
 
 private slots:
     void newFile();
-    void newConsole();
+    void newConsole(const QString &startupScript = QString());
     void open();
     void save();
     void saveAs();

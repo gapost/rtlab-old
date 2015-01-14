@@ -1,0 +1,3 @@
+exec("testDaqmx.qs")
+
+createAI()

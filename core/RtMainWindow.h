@@ -17,7 +17,7 @@ public:
 	RtMainWindow(void);
 	virtual ~RtMainWindow(void);
 
-	void addFigureWindow(QWidget* child);
+    void addFigureWindow(QWidget* child, const QString& name);
     void addDockPane(QWidget* child, const QString &name);
 
 	RtChannelViewer* channelViewer() const { return channelViewer_; }

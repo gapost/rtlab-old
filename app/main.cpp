@@ -1,4 +1,6 @@
 #include <QApplication>
+#include <QFile>
+#include <QTextStream>
 
 #include "MainWindow.h"
 #include "RtDev.h"
@@ -14,10 +16,23 @@ int main(int argc, char *argv[])
 
     Q_INIT_RESOURCE(rtlab);
 
+    QApplication app(argc, argv);
+
 	RtAcquisition* dev = new RtAcquisition("dev",(RtObject*)RtObject::root());
 
-    QApplication app(argc, argv);
-    MainWindow mainWin;
+    QString startup;
+    if (argc>1) {
+        QString fn(argv[1]);
+        QFile fin(fn);
+        if (fin.open(QFile::ReadOnly)) {
+            QTextStream qin(&fin);
+            startup = qin.readAll();
+        }
+    }
+
+
+
+    MainWindow mainWin(startup);
     mainWin.show();
     return app.exec();
 }

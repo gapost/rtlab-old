@@ -8,7 +8,7 @@
 
 #include "RtSession.h"
 
-ScriptConsole::ScriptConsole(void)
+ScriptConsole::ScriptConsole()
 {
 
 	setTabStopWidth ( 40 );
@@ -18,6 +18,7 @@ ScriptConsole::ScriptConsole(void)
 	connect(session,SIGNAL(stdOut(const QString&)),this,SLOT(stdOut(const QString&)));
 	connect(session,SIGNAL(stdErr(const QString&)),this,SLOT(stdErr(const QString&)));
 	connect(session,SIGNAL(endSession()),this,SLOT(close()));
+
 }
 
 void ScriptConsole::exec(const QString& code)

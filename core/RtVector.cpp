@@ -154,7 +154,7 @@ void RtDataContainer::show()
 {
 	hide();
 	widget_ = new RtTableWidget(this); //root_.mainWindow()->channelViewer()->addChannel(this);
-	root_.mainWindow()->addFigureWindow(widget_);
+    root_.mainWindow()->addFigureWindow(widget_,objectName() + "Widget");
 	widget_->setWindowTitle(fullName());
 	widget_->show();
 }

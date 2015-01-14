@@ -32,8 +32,8 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
 	// check the type
 	int idx = -1;
     if (type=="TCPIP") idx=0;
-    if (type=="GPIB") idx=1;
-    if (type=="MODBUS-TCP") idx=2;
+    else if (type=="GPIB") idx=1;
+    else if (type=="MODBUS-TCP") idx=2;
     else
 	{
 		throwScriptError(InvalidTypeMsg);

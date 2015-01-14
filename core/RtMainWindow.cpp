@@ -71,9 +71,10 @@ void RtMainWindow::createDockers()
 		objectInspector, SLOT(slotRemoveObject(RtObject*))); //, Qt::QueuedConnection);
 }
 
-void RtMainWindow::addFigureWindow(QWidget *child)
+void RtMainWindow::addFigureWindow(QWidget *child, const QString &name)
 {
 	QMdiSubWindow *subWindow = new QMdiSubWindow();
+    subWindow->setObjectName(name);
 	subWindow->setWidget(child);
 	subWindow->resize(400,300);
 	mdiArea->addSubWindow(subWindow);
