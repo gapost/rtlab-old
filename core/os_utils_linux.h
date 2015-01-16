@@ -3,7 +3,7 @@
 
 #include <time.h>
 #include <pthread.h>
-#include <signal.h>
+#include <sys/timerfd.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -68,7 +68,6 @@ class stopwatch
     int latch(timespec& t_)
     {
         return clock_gettime(SW_CLOCK_ID,&t_);
-
     }
 
 public:
@@ -151,7 +150,7 @@ public:
     return ret;
 }*/
 
-#define SIG SIGRTMIN
+
 /** timer thread
   * A timer thread implemented using timer_create() + signal
   * + a thread that watches for the signal
@@ -159,46 +158,70 @@ public:
 template<class Functor>
 class timer
 {
+    typedef timer<Functor> self_t;
     pthread_t  tid;
-    timer_t timerid;
-    int signo;
+    unsigned long long wakeups_missed;
+    int timer_fd;
+    unsigned int period;
+    Functor* F;
 
-    struct _thread_arg_t
+    // Create a timer_fd object
+    static int make_periodic (self_t *me)
     {
-        int signo;
-        Functor* F;
-    };
+        int ret;
+        unsigned int ns;
+        unsigned int sec;
+        itimerspec itval;
 
-    static void _thread_sigwait(void* arg)
-    {
-        _thread_arg_t* ta = (_thread_arg_t*)arg;
-        int signo = ta->signo;
-        Functor* F = ta->F;
+        /* Create the timer */
+        me->timer_fd = timerfd_create (SW_CLOCK_ID, 0);
+        me->wakeups_missed = 0;
+        if (me->timer_fd == -1)
+            return me->timer_fd;
 
-        // Wait for the timer signal
-        sigset_t set;
-        sigemptyset(&set);
-        sigaddset(&set, signo);
-
-        while (1) {
-            //printf("Waiting for a signal\n");
-            int sig;
-            int ret_val = sigwait(&set, &sig);
-            if (ret_val == 0) {
-                //printf("Signal number %d received\n",sig);
-
-                // Signal processing code here
-                (*F)();
-
-
-            } else {
-                //fatal_error(ret_val, "sigwait()");
-                break;
-            }
-        };
+        /* Make the timer periodic */
+        sec = me->period/1000;
+        ns = (me->period - (sec * 1000)) * 1000000;
+        itval.it_interval.tv_sec = sec;
+        itval.it_interval.tv_nsec = ns;
+        itval.it_value.tv_sec = sec;
+        itval.it_value.tv_nsec = ns;
+        ret = timerfd_settime (me->timer_fd, 0, &itval, NULL);
+        return ret;
     }
+
+    static void wait_period (self_t *me)
+    {
+        unsigned long long missed;
+        int ret;
+
+        /* Wait for the next timer event. If we have missed any the
+           number is written to "missed" */
+        ret = read (me->timer_fd, &missed, sizeof (missed));
+        if (ret == -1)
+        {
+            //perror ("read timer");
+            return;
+        }
+
+        me->wakeups_missed += missed;
+    }
+
+    static void *thread_func(void *arg)
+    {
+        self_t* me = (self_t*)arg;
+
+        make_periodic (me);
+        while (1)
+        {
+            wait_period (me);
+            me->F->operator()();
+        }
+        return NULL;
+    }
+
 public:
-    timer() : tid(0), timerid(0)
+    timer() : tid(0), timer_fd(0)
     {
 
     }
@@ -210,63 +233,30 @@ public:
     {
         stop();
 
-        // select signal
-        signo = SIG;
+        // copy options
+        F = f;
+        period = ms;
 
-        // Block from being delivered to calling thread
-        sigset_t set;
-        sigemptyset(&set);
-        sigaddset(&set, signo);
-        pthread_sigmask(SIG_SETMASK, &set, (sigset_t *)NULL);
-
-        // Create the signal handling thread
-        _thread_arg_t arg;
-        arg.signo = signo;
-        arg.F = f;
-        int ret_val = pthread_create(&tid, (pthread_attr_t *)NULL,
-                                 (void *(*)(void *))_thread_sigwait, &arg);
-        if (ret_val!=0) {
+        // Create the timer thread
+        int ret = pthread_create(&tid, (pthread_attr_t *)NULL, thread_func, this);
+                               //  (void *(*)(void *))_thread_sigwait, &this);
+        if (ret!=0) {
             //fatal_error(ret_val, "pthread_create()");
             return false;
         }
 
-        // Create timer
-        struct sigevent timer_event;
-        memset(&timer_event, 0, sizeof(struct sigevent));
-        timer_event.sigev_notify = SIGEV_SIGNAL;
-        timer_event.sigev_signo = signo;
-        ret_val = timer_create(SW_CLOCK_ID, &timer_event, &timerid);
-        if (ret_val!=0) {
-            //fatal_error(ret_val, "timer_create()");
-            timerid = 0;
-            return false;
-        }
 
-        // start timer
-        struct itimerspec tvalue;
-        tvalue.it_value.tv_sec = ms / 1000;
-        tvalue.it_value.tv_nsec = (ms % 1000) * 1000000;
-        tvalue.it_interval.tv_sec = tvalue.it_value.tv_sec;
-        tvalue.it_interval.tv_nsec = tvalue.it_value.tv_nsec;
-
-        ret_val = timer_settime(timerid, 0, &tvalue, NULL);
-        if (ret_val!=0) {
-            //fatal_error(ret_val, "timer_settime()");
-            return false;
-        }
 
         return true;
     }
     bool is_running() const
     {
-        return timerid != 0;
+        return timer_fd != 0;
     }
     void stop()
     {
         if (!is_running()) return;
-        timer_delete(timerid);
         pthread_cancel(tid);
-        timerid = 0;
         tid = 0;
     }
 };

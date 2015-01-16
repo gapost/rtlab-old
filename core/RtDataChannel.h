@@ -68,8 +68,16 @@ class RtDataChannel : public RtJob
 	If set the expression is executed on the channel data.
 	*/
 	Q_PROPERTY(QString parserExpression READ parserExpression WRITE setParserExpression)
-
-	Q_ENUMS(AveragingType)
+    /** Display format.
+     * One of the chars 'e', 'E', 'f', 'g', 'G' defining the number format
+     * according to QString::number(double,format,precision)
+     */
+    Q_PROPERTY(QString format READ format WRITE setFormat)
+    /** Display precision.
+     * Set the number display precision
+     * according to QString::number(double,format,precision)
+     */
+    Q_PROPERTY(int precision READ precision WRITE setPrecision)
 
 public:
 	/** Type of channel averaging.	
@@ -89,6 +97,8 @@ protected:
 	averager_t av;
 	double v_, dv_, offset_, multiplier_;
 	RtDoubleVector range_;
+    QString format_;
+    int precision_;
 
 	bool time_channel_, dataReady_;
 
@@ -121,6 +131,8 @@ public:
 	uint depth() const { return av.N(); }
 	bool dataReady() const { return dataReady_; }
 	QString parserExpression() const;
+    QString format() const { return format_; }
+    int precision() const { return precision_; }
 
 	// setters
 	void setSignalName(QString v);
@@ -132,6 +144,8 @@ public:
 	void setForgettingFactor(double v) { av.setff(v); } 
 	virtual void setDepth(uint d); 
 	void setParserExpression(const QString& s);
+    void setFormat(const QString& v);
+    void setPrecision(int v);
 
 
 	bool isTimeChannel() const { return time_channel_; }

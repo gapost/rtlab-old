@@ -47,7 +47,7 @@ struct test_func
 
 int timers_test(int argc, char* argv[])
 {
-    char* usage =
+    const char* usage =
             "Usage:\n"
             "  timetest p t\n"
             "  p  :  period in ms\n"

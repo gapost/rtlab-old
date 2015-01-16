@@ -213,13 +213,13 @@ void RtSession::kill(RtObjectList objList)
         }
     }
 }
-void RtSession::kill(RtObject *obj)
+/*void RtSession::kill(RtObject *obj)
 {
     if (obj && obj->canBeKilled()) {
         obj->detach();
         delete obj;
     }
-}
+}*/
 
 RtObjectList RtSession::find(const QString& wc)
 {

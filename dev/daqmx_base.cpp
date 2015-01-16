@@ -172,13 +172,13 @@ void daqmx::init()
     }
     refcount_.ref();
 }
-//void daqmx::deinit()
-//{
-//    if (!refcount_.deref())
-//    {
-//        thread_->quit();
-//    }
-//}
+void daqmx::deinit()
+{
+    if (!refcount_.deref())
+    {
+        thread_->quit();
+    }
+}
 
 QString daqmx::getErrorMessage(int c)
 {

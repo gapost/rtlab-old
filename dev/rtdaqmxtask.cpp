@@ -25,6 +25,7 @@ RtDAQmxTask::~RtDAQmxTask()
 {
     QString msg;
     if (handle_) daqmx::clearTask((TaskHandle)handle_,msg);
+    daqmx::deinit();
 }
 void RtDAQmxTask::detach()
 {

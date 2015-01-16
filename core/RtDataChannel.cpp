@@ -20,6 +20,7 @@ RtJob(name, desc, parent), av(1), type_(None), time_channel_(false),
 v_(0.), dv_(0.), 
 offset_(0.), multiplier_(1.),
 parser_(0),
+  format_("g"), precision_(6),
 dataReady_(false)
 {
 	range_ << -1e30 << 1.e30;
@@ -51,6 +52,16 @@ void RtDataChannel::setUnit(QString v)
 {
 	unit_ = v;
 	emit propertiesChanged();
+}
+void RtDataChannel::setFormat(const QString &v)
+{
+    format_ = v;
+    emit propertiesChanged();
+}
+void RtDataChannel::setPrecision(int v)
+{
+    precision_ = v;
+    emit propertiesChanged();
 }
 void RtDataChannel::setRange(const RtDoubleVector& v)
 {
@@ -157,7 +168,7 @@ void RtDataChannel::forceProcces()
 QString RtDataChannel::formatedValue()
 {
 	return dataReady_ ? 
-		(time_channel_ ? RtTimeValue(v_).toString() : QString::number(v_)) : QString();
+        (time_channel_ ? RtTimeValue(v_).toString() : QString::number(v_,format_.at(0).toLatin1(),precision_)) : QString("NAN");
 }
 
 void RtDataChannel::clear()

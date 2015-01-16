@@ -79,4 +79,7 @@ unix:!macx:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../core/libRtCore.a
 OTHER_FILES += \
     script/testDaqmx.qs \
     script/testmodbus.qs \
-    script/main.qs
+    script/main.qs \
+    script/test6221.qs \
+    script/testLoop.qs \
+    script/testAI.qs

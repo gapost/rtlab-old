@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
     //return a.exec();
 
-    //return timers_test(argc,argv);
+    return timers_test(argc,argv);
 
-    return test_timevalue();
+    //return test_timevalue();
 }

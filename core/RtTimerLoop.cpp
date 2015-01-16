@@ -29,7 +29,7 @@ void RtTimerLoop::disarm_()
 void RtTimerLoop::operator()()
 { 
 	t_[1] = (float)clock_.sec(); 
-	exec();  
+    exec();
 	perfmon[0] << (t_[1] - t_[0])*1000; t_[0] = t_[1];
 	perfmon[1] << ((float)clock_.sec() - t_[1])*1000;
 }

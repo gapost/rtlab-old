@@ -46,7 +46,7 @@ public slots:
     void textSave(const QString& str, const QString& fname);
     QString textLoad(const QString& fname);
     void kill(RtObjectList objList);
-    void kill(RtObject* obj);
+    // void kill(RtObject* obj);
     RtObjectList find(const QString& wildCard);
     void h5write(const QString& fname, const QString& comment);
     void beep();
