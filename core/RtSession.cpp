@@ -67,6 +67,10 @@ RtSession::RtSession(const QString& name, RtObject* parent) : RtObject(name,"ses
 				);
 		}
 	}
+
+    QScriptValue killFunction = engine_->newFunction(kill_func);
+    engine_->globalObject().setProperty(QLatin1String("kill"), killFunction);
+
 }
 
 RtSession::~RtSession( void)
@@ -203,23 +207,54 @@ void RtSession::quit()
 {
     emit endSession();
 }
-void RtSession::kill(RtObjectList objList)
+
+QScriptValue RtSession::kill_func(QScriptContext *ctx, QScriptEngine *eng)
 {
-    foreach(RtObject* o, objList)
+    static const char* usage =
+        "usage:\n"
+        "  kill(RtObject obj)\n";
+        //"  kill(String str), where str is a name matching string, e.g. \"*\" or \"dev.*\"";
+
+    // check arguments
+    if (ctx->argumentCount()!=1)
     {
-        if (o && o->canBeKilled()) {
-            o->detach();
-            delete o;
+        return ctx->throwError(QScriptContext::SyntaxError,usage);
+    }
+
+    QScriptValue arg = ctx->argument(0);
+    RtObject* obj;
+    if ( arg.isQObject() && (obj = qobject_cast<RtObject*>(arg.toQObject())) )
+    {
+        if (obj->canBeKilled())
+        {
+            obj->detach();
+            delete obj;
         }
+        return eng->undefinedValue();
     }
+
+    if (arg.isArray())
+    {
+        // find all valid objects that can be killed
+        QList< QPointer<RtObject> > toKill;
+        quint32 n = arg.property("length").toUInt32();
+        for(quint32 i=0; i<n; ++i)
+        {
+            RtObject* obj = qobject_cast<RtObject*>(arg.property(i).toQObject());
+            if (obj && obj->canBeKilled()) toKill.push_back(obj);
+        }
+
+        // first detach
+        foreach(QPointer<RtObject> obj, toKill) obj->detach();
+        // then kill!
+        foreach(QPointer<RtObject> obj, toKill) if (obj) delete obj;
+
+        return eng->undefinedValue();
+    }
+
+    return ctx->throwError(QScriptContext::SyntaxError,usage);
+
 }
-/*void RtSession::kill(RtObject *obj)
-{
-    if (obj && obj->canBeKilled()) {
-        obj->detach();
-        delete obj;
-    }
-}*/
 
 RtObjectList RtSession::find(const QString& wc)
 {

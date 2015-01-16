@@ -93,11 +93,6 @@ unix {
     #INCLUDEPATH += /usr/include
     LIBS += -lmuparser
 
-    ############## NI DAQmx Base #########
-    CONFIG += daqmxbase
-    LIBS += -lnidaqmxbase
-    DEFINES += USE_DAQMX_BASE
-
 ######### linux-gpib ############
 LIBS += -lgpib
 

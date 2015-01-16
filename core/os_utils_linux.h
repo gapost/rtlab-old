@@ -164,9 +164,10 @@ class timer
     int timer_fd;
     unsigned int period;
     Functor* F;
+    volatile int continue_;
 
     // Create a timer_fd object
-    static int make_periodic (self_t *me)
+    int make_periodic ()
     {
         int ret;
         unsigned int ns;
@@ -174,49 +175,68 @@ class timer
         itimerspec itval;
 
         /* Create the timer */
-        me->timer_fd = timerfd_create (SW_CLOCK_ID, 0);
-        me->wakeups_missed = 0;
-        if (me->timer_fd == -1)
-            return me->timer_fd;
+        timer_fd = timerfd_create (SW_CLOCK_ID, 0);
+        wakeups_missed = 0;
+        if (timer_fd == -1)
+            return timer_fd;
 
         /* Make the timer periodic */
-        sec = me->period/1000;
-        ns = (me->period - (sec * 1000)) * 1000000;
+        sec = period/1000;
+        ns = (period - (sec * 1000)) * 1000000;
         itval.it_interval.tv_sec = sec;
         itval.it_interval.tv_nsec = ns;
         itval.it_value.tv_sec = sec;
         itval.it_value.tv_nsec = ns;
-        ret = timerfd_settime (me->timer_fd, 0, &itval, NULL);
+        ret = timerfd_settime (timer_fd, 0, &itval, NULL);
         return ret;
     }
 
-    static void wait_period (self_t *me)
+    /* stop timer and close timert_fd */
+    int stop_timer()
+    {
+        itimerspec itval;
+        itval.it_interval.tv_sec = 0;
+        itval.it_interval.tv_nsec = 0;
+        itval.it_value.tv_sec = 0;
+        itval.it_value.tv_nsec = 0;
+        int ret = timerfd_settime (timer_fd, 0, &itval, NULL);
+        close(timer_fd);
+        timer_fd = 0;
+        return ret;
+    }
+
+    void wait_period ()
     {
         unsigned long long missed;
         int ret;
 
         /* Wait for the next timer event. If we have missed any the
            number is written to "missed" */
-        ret = read (me->timer_fd, &missed, sizeof (missed));
+        ret = read (timer_fd, &missed, sizeof (missed));
         if (ret == -1)
         {
             //perror ("read timer");
             return;
         }
 
-        me->wakeups_missed += missed;
+        wakeups_missed += missed;
+    }
+
+    void thread_func_()
+    {
+        make_periodic ();
+        while (continue_)
+        {
+            wait_period ();
+            F->operator()();
+        }
+        stop_timer();
     }
 
     static void *thread_func(void *arg)
     {
         self_t* me = (self_t*)arg;
-
-        make_periodic (me);
-        while (1)
-        {
-            wait_period (me);
-            me->F->operator()();
-        }
+        me->thread_func_();
         return NULL;
     }
 
@@ -232,6 +252,8 @@ public:
     bool start(Functor* f, unsigned int ms)
     {
         stop();
+
+        continue_ = true;
 
         // copy options
         F = f;
@@ -256,8 +278,13 @@ public:
     void stop()
     {
         if (!is_running()) return;
-        pthread_cancel(tid);
+
+        //pthread_cancel(tid);
+        continue_ = false;
+        void* ret;
+        pthread_join(tid,&ret);
         tid = 0;
+
     }
 };
 

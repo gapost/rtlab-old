@@ -7,7 +7,7 @@
 #include "RtTemperatureController.h"
 #include "RtResistanceController.h"
 #include "RtAxis.h"
-#include "rtdaqmxtask.h"
+#include "rtdaq.h"
 #include "rtgpib.h"
 #include "rtmodbus.h"
 
@@ -148,9 +148,14 @@ void RtAcquisition::newTemperatureController(const QString& name, RtDataChannel*
 
 void RtAcquisition::newDAQmxTask(const QString &name)
 {
+#ifdef _WIN32
     if (!checkName(name)) return;
     RtDAQmxTask* task = new RtDAQmxTask(name,this);
     if (task) createScriptObject(task);
+#elif __linux__
+    throwScriptError("Not supported under Linux");
+#endif
+
 }
 
 

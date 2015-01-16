@@ -18,10 +18,14 @@ bool RtKeithleyDevice::setOnline_(bool on)
 	if (on==online_) return on;
 	if (on)
 	{
-		return online_ = RtDevice::setOnline_(true) && 
-			write_("*cls")==4 &&
+        if (RtDevice::setOnline_(true))
+        {
+            bool ok = write_("*cls")==4 &&
 			write_("*rst")==4 && 
 			write_(configString_());
+            if (!ok) setOnline_(false);
+        }
+        return online_;
 	}
 	else
 	{

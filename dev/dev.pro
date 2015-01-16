@@ -20,15 +20,8 @@ SOURCES += RtDev.cpp \
     RtTemperatureController.cpp \
     RtResistanceController.cpp \
     RtAxis.cpp \
-    rtdaqmxtask.cpp \
     rtgpib.cpp \
     rtmodbus.cpp
-
-daqmxbase {
-    SOURCES += daqmx_base.cpp
-} else {
-    SOURCES += daqmx.cpp
-}
 
 HEADERS += RtDev.h \
     RtDevice.h \
@@ -40,10 +33,16 @@ HEADERS += RtDev.h \
     isa_pid.h \
     relaytuner.h \
     RtAxis.h \
-    rtdaqmxtask.h \
-    daqmx.h \
     rtgpib.h \
-    rtmodbus.h
+    rtmodbus.h \
+    rtdaq.h
+
+win32 {
+HEADERS += rtdaqmxtask.h \
+           daqmx.h
+SOURCES += rtdaqmxtask.cpp \
+           daqmx.cpp
+}
 
 win32 {
 SOURCES += $$LIBMODBUS_PATH/modbus.c \

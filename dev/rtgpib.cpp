@@ -255,7 +255,7 @@ int RtGpib::write(uint port, const char* buff, int len, int e)
             );
         return 0;
     }
-    else return ibcntl;
+    else return len; // ibcntl; linux-gpib sends +1 byte
 }
 
 void RtGpib::clear_()

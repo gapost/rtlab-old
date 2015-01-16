@@ -4,13 +4,7 @@
 #include "RtObject.h"
 
 class RtInterface;
-class RtDevice;
 class RtDataChannel;
-class RtKeithley2182;
-class RtKeithley6220;
-class RtPowerSupply;
-class RtKepcoDps;
-class RtKepcoBop;
 
 class RtAcquisition : public RtObject
 {

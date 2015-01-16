@@ -20,8 +20,7 @@ protected:
     QScriptEngine* engine_;
 	QTimer* wait_timer_;
 	bool wait_aborted_;
-
-protected:
+    static QScriptValue kill_func(QScriptContext *ctx, QScriptEngine *e);
 
 public:
 	RtSession(const QString& name, RtObject* parent = (RtObject*)(&root_));
@@ -45,8 +44,6 @@ public slots:
     void wait(uint ms);
     void textSave(const QString& str, const QString& fname);
     QString textLoad(const QString& fname);
-    void kill(RtObjectList objList);
-    // void kill(RtObject* obj);
     RtObjectList find(const QString& wildCard);
     void h5write(const QString& fname, const QString& comment);
     void beep();
