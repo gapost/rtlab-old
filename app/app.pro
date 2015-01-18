@@ -82,4 +82,7 @@ OTHER_FILES += \
     script/main.qs \
     script/test6221.qs \
     script/testLoop.qs \
-    script/testAI.qs
+    script/testAI.qs \
+    script/testMain.qs
+
+

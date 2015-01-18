@@ -12,6 +12,7 @@ class QScriptEngine;
 class QScriptContext;
 class QTimer;
 
+
 class RtSession : public RtObject
 {
 	Q_OBJECT
@@ -20,6 +21,7 @@ protected:
     QScriptEngine* engine_;
 	QTimer* wait_timer_;
 	bool wait_aborted_;
+    os::stopwatch watch_;
     static QScriptValue kill_func(QScriptContext *ctx, QScriptEngine *e);
 
 public:
@@ -56,6 +58,9 @@ public slots:
     // windows
     void saveWindowState(const QString& fname);
     void restoreWindowState(const QString& fname);
+    // timing
+    void tic() { watch_.start(); }
+    double toc() { watch_.stop(); return watch_.sec(); }
 
 
 signals:

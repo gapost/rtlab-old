@@ -20,7 +20,7 @@ private:
 
 public:
     static void init();
-    static void deinit();
+    static void deinit() {};
 
     static QString getErrorMessage(int c);
     static int createTask(const QString& name, TaskHandle& h, QString& errmsg);
