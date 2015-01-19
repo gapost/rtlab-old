@@ -12,6 +12,7 @@
 #include <QStringListModel>
 #include <QScrollBar>
 #include <QFile>
+#include <QAbstractItemView>
 
 
 QConsoleWidget::QConsoleHistory QConsoleWidget::_history;

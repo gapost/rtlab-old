@@ -1,5 +1,10 @@
 #include <QtGui>
 
+#include <QMessageBox>
+#include <QApplication>
+#include <QFileDialog>
+
+
 #include "ScriptEditor.h"
 
 ScriptEditor::ScriptEditor()

@@ -5,6 +5,8 @@
 
 #include <qwt_plot.h>
 
+//#if QWT_VERSION >= 0x060000
+
 class RtVector;
 class QwtPlotCurve;
 class QwtPlotGrid;

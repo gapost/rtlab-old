@@ -1,5 +1,15 @@
 #include <QtGui>
 
+#include <QMdiArea>
+#include <QFileDialog>
+#include <QStatusBar>
+#include <QAction>
+#include <QMessageBox>
+#include <QMenu>
+#include <QMdiSubWindow>
+#include <QMenuBar>
+#include <QToolBar>
+
 #include "MainWindow.h"
 #include "ScriptEditor.h"
 #include "ScriptConsole.h"

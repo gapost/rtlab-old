@@ -1,3 +1,8 @@
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets uitools
+} else {
+    CONFIG += uitools
+}
 
 ############## 3rd Party Libs for win32 ###############
 
@@ -31,6 +36,18 @@ win32 {
     INCLUDEPATH += $$PWD/../3rdparty/gsl-1.15
     DEPENDPATH += $$PWD/../3rdparty/gsl-1.15/gsl
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+# Qwt-6
+DEFINES += QWT_DLL
+LIBS += -L$$PWD/../3rdparty/Qwt-6.1.2-qt-5.4.0-msvc2010/lib/
+CONFIG(release, debug|release) {
+    LIBS += -lqwt
+} else {
+    LIBS += -lqwtd
+}
+INCLUDEPATH += $$PWD/../3rdparty/Qwt-6.1.2-qt-5.4.0-msvc2010/include
+DEPENDPATH += $$PWD/../3rdparty/Qwt-6.1.2-qt-5.4.0-msvc2010/include
+} else {
     ############## Qwt-5.2.1 ##############
     DEFINES += QWT_DLL
     CONFIG(release, debug|release) {
@@ -40,7 +57,7 @@ win32 {
     }
     INCLUDEPATH += $$PWD/../3rdparty/qwt5_msvc2010_install/include
     DEPENDPATH += $$PWD/../3rdparty/qwt5_msvc2010_install/include
-
+}
 
     ############## HDF5 ##############
     DEFINES += _HDF5USEDLL_ HDF5CPP_USEDLL
@@ -69,6 +86,8 @@ win32 {
 
     DEFINES += finite=_finite
 }
+
+win32-g++: DEFINES += H5_SIZEOF_SSIZE_T=1
 
 
 

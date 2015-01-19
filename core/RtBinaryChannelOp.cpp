@@ -116,7 +116,7 @@ void RtLinearCorrelator::run()
 		{
 			av << (y_->value());
 			buff_x_ << (x_->value());
-			if (k<depth()) k++;
+            if (k < (int)depth()) k++;
 			if (k>1)
 			{
 				linefit<double> fitobj(buff_x_.buff(),av.buff(),k);
@@ -128,7 +128,7 @@ void RtLinearCorrelator::run()
 		else
 		{
 			av << (y_->value());
-			if (k<depth()) k++;
+            if (k < (int)depth()) k++;
 			if (k>1)
 			{
 				linefit<double> fitobj(av.buff(),k);
@@ -151,7 +151,9 @@ void RtLinearCorrelator::run()
 			catch (mu::Parser::exception_type &e)
 			{
 			  //std::cout << e.GetMsg() << endl;
-			  dataReady_ = false;
+                //const mu::string_type& e.GetMsg();
+                pushError("muParser",e.GetMsg().c_str());
+                dataReady_ = false;
 			}
 		}
 		else

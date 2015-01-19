@@ -242,7 +242,18 @@ void RtFunctionBrowser::populateMethods(const QMetaObject* metaObject)
 	QTreeWidgetItem* isignals = new QTreeWidgetItem(iclass, QStringList("Signals"));
 	for(int i=metaObject->methodOffset(); i < metaObject->methodCount(); ++i)
 	{
-		QMetaMethod m = metaObject->method(i);
+        QMetaMethod m = metaObject->method(i);
+#if QT_VERSION >= 0x050000
+        if (m.methodType()==QMetaMethod::Slot)
+        {
+            new QTreeWidgetItem(islots, QStringList(m.methodSignature()));
+        }
+        else if (m.methodType()==QMetaMethod::Signal)
+        {
+            new QTreeWidgetItem(isignals, QStringList(m.methodSignature()));
+        }
+    }
+#else
 		if (m.methodType()==QMetaMethod::Slot)
 		{
 			new QTreeWidgetItem(islots, QStringList(m.signature()));
@@ -252,6 +263,7 @@ void RtFunctionBrowser::populateMethods(const QMetaObject* metaObject)
 			new QTreeWidgetItem(isignals, QStringList(m.signature()));
 		}
 	}
+#endif
 
 
 }

@@ -6,7 +6,7 @@
 
 TARGET = RtCore
 TEMPLATE = lib
-CONFIG += staticlib uitools
+CONFIG += staticlib
 QT       += script
 
 include ( ../rtlab.pri )
@@ -64,7 +64,6 @@ SOURCES += \
     RtBinaryChannelOp.cpp \
     RtMainWindow.cpp \
     RtObjectInspector.cpp \
-    RtPlotWidget.cpp \
     RtInterpChannel.cpp \
     RtTableWidget.cpp \
     RtChannelWidget.cpp \
@@ -73,6 +72,9 @@ SOURCES += \
     RtDelegates.cpp \
     objectcontroller.cpp \
     RtRootSerialize.cpp
+
+greaterThan(QT_MAJOR_VERSION, 4): SOURCES += rtplotwidgetqwt6.cpp
+else: SOURCES += rtplotwidgetqwt5.cpp
 
 FORMS = ChannelWidget.ui
 
