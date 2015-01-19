@@ -315,13 +315,26 @@ void listFunctionsHelper(QString& S, const QMetaObject* metaObject, int& level)
 		QMetaMethod m = metaObject->method(i);
 		if (m.methodType()==QMetaMethod::Slot)
 		{
-			S += m.signature();
-			S += '\n';
+#if QT_VERSION >= 0x050000
+// Qt5 code
+            S += m.methodSignature();
+#else
+// Qt4 code
+            S += m.signature();
+#endif
+            S += " [slot]";
+            S += '\n';
 		}
 		else if (m.methodType()==QMetaMethod::Signal)
 		{
-			S += m.signature();
-			S += " [slot]";
+#if QT_VERSION >= 0x050000
+// Qt5 code
+            S += m.methodSignature();
+#else
+// Qt4 code
+            S += m.signature();
+#endif
+            S += " [signal]";
 			S += '\n';
 		}
 	}

@@ -111,7 +111,8 @@ void RtDataBuffer::add_listener(DataListener* l)
 void RtDataBuffer::remove_listener(DataListener* l)
 {
 	os::auto_lock L(comm_lock);
-	listeners.remove(l);
+    if (listeners.contains(l))
+        listeners.remove(l);
 }
 void RtDataBuffer::setPacketDepth(unsigned int d)
 {
