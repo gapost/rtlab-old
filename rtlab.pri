@@ -100,9 +100,16 @@ unix {
     LIBS += -lgsl -lcblas -latlas -lm
     # INCLUDEPATH += /usr/include/gsl
 
-    ############## Qwt-5.2.1 ##############
-    LIBS += -lqwt
-    INCLUDEPATH += /usr/include/qwt
+greaterThan(QT_MAJOR_VERSION, 4) {
+# Qwt-6 compiled
+INCLUDEPATH += /usr/local/qwt-6.1.2/include
+LIBS += -L/usr/local/qwt-6.1.2/lib/ -lqwt
+} else {
+# Qwt5 installed from repo package
+INCLUDEPATH += /usr/include/qwt
+LIBS += -lqwt
+}
+
 
     ############## HDF5 ##############
     #INCLUDEPATH += /usr/include

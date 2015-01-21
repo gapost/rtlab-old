@@ -7,7 +7,6 @@
 TARGET = RtLab
 TEMPLATE = app
 QT       += core gui script network
-CONFIG   += uitools
 
 RESOURCES     = rtlab.qrc
 win32:RC_FILE = rtlab.rc

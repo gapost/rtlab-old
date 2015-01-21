@@ -29,14 +29,19 @@ bool RtKeithleyDevice::setOnline_(bool on)
 	}
 	else
 	{
-		write_(configDisplay(true)); 
+        write_(defaultConfigString_());
 		//if (inputChannels_.size())
 		{
-			write("rout:scan:lsel none");
-			write("*wai");
+            //write("rout:scan:lsel none");
+            //write("*wai");
 		}
-		write_("syst:pres");
-		write_("*rst");
+        //write_("samp:coun 1");
+        //write_("rout:scan:lsel none");
+        //write_("rout:clos (@1)");
+        //write_("syst:pres");
+        //write_("*rst");
+        write_("*sre?");
+        read_();
 		return RtDevice::setOnline_(false);
 	}
 }
@@ -391,6 +396,32 @@ QList<QByteArray> RtKeithley2182::configString_()
 
 	return msglst;
 }
+QList<QByteArray> RtKeithley2182::defaultConfigString_()
+{
+    QList<QByteArray> msglst;
+    msglst << configNplc(1.);
+    // disable dig. filter by default
+    msglst << "sens:volt:chan1:dfil:stat 0";
+    msglst << "sens:volt:chan2:dfil:stat 0";
+    // analog filter
+    msglst << configFilter(false);
+    // front auto-zero
+    msglst << configAZero(true);
+    // line-sync
+    msglst << configLSync(false);
+    // format
+    msglst << configFormat(false);
+    // set range
+    msglst << configRange(0.);
+    //trigger delay
+    msglst << configMeasDelay(0.);
+    //scan
+    msglst << configDual(false);
+    // display on/off
+    msglst << configDisplay(true);
+
+    return msglst;
+}
 
 //***********************************************************************//
 #include "RtEnumHelper.h"
@@ -625,6 +656,29 @@ QList<QByteArray> RtKeithley2000::configString_()
 
 	return msglst;
 }
+QList<QByteArray> RtKeithley2000::defaultConfigString_()
+{
+    QList<QByteArray> msglst;
+
+    // set func
+    msglst << configFunc(VoltDC);
+    // set nplc
+    msglst << configNplc(VoltDC,1.);
+    //trigger delay
+    msglst << configMeasDelay(0.);
+
+    msglst << configRange(VoltDC,0.);
+
+    // format
+    msglst << configFormat(false);
+    // display on/off
+    msglst << configDisplay(true);
+
+    // scan
+    msglst << configScanStr(1,0);
+
+    return msglst;
+}
 //********************************************************************************//
 RtKeithley6220::RtKeithley6220(const QString& name, RtObject* parent, 
 		RtInterface* aifc,  int addr, uint buffsz) :
@@ -803,6 +857,27 @@ QList<QByteArray> RtKeithley6220::configString_()
 	}
 
 	return msglst;
+}
+QList<QByteArray> RtKeithley6220::defaultConfigString_()
+{
+    QList<QByteArray> msglst;
+    // format
+    msglst << configFormat(false);
+    // display on/off
+    msglst << configDisplay(true);
+    // trigger
+    msglst << "trig:sour imm";
+    // range
+    msglst << configRange(0.);
+    // floating source
+    msglst << configFloating(true);
+    // current (no sweep)
+    msglst << configCurrent(curr_);
+    msglst << configCompliance(compliance_);
+    msglst << configOutput(false);
+
+
+    return msglst;
 }
 // setters
 void RtKeithley6220::setCurrent(double v)

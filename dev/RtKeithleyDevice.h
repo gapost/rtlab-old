@@ -35,6 +35,7 @@ protected:
 	static QByteArray configMeasDelay(double d);
 
 	virtual QList<QByteArray> configString_() = 0;
+    virtual QList<QByteArray> defaultConfigString_() = 0;
 
 public:
 	RtKeithleyDevice(const QString& name, const QString& desc, RtObject* parent, 
@@ -77,6 +78,7 @@ protected:
 	RtDataChannel* ch2_;
 
 	virtual QList<QByteArray> configString_();
+    virtual QList<QByteArray> defaultConfigString_();
 
 	static QByteArray configNplc(double v);
 	static QList<QByteArray> configRange(double v);
@@ -140,6 +142,7 @@ protected:
 	MeasFunction mfunc;
 
 	virtual QList<QByteArray> configString_();
+    virtual QList<QByteArray> defaultConfigString_();
 
 	static const char* measFuncName(MeasFunction f);
 	static QByteArray configFunc(MeasFunction f);
@@ -194,6 +197,7 @@ protected:
 	RtDoubleVector sweepList_;
 
 	virtual QList<QByteArray> configString_();
+    virtual QList<QByteArray> defaultConfigString_();
 
 	static QByteArray configCurrent(double v);
 	static QByteArray configOutput(bool v);
