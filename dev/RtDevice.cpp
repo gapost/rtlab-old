@@ -2,27 +2,19 @@
 
 RtDevice::RtDevice(const QString& name, const QString& desc, RtObject* parent, 
 		RtInterface* aifc,  int addr, uint buffsz) : 
-RtJob(name,desc,parent), online_(false), addr_(addr), buff_(0), 
-eot_(0x02 << 8), 
+RtJob(name,desc,parent), online_(false), addr_(addr),
+buff_(buffsz,char(0)), buff_sz_(buffsz),
 eos_(0x100), 
 ifc(aifc)
 {
-	alloc_(buffsz);
 }
 RtDevice::~RtDevice()
 {
-	if (buff_) delete [] buff_;
 }
 void RtDevice::detach()
 {
 	RtJob::detach();
 	setOnline_(false);
-}
-void RtDevice::alloc_(int sz)
-{
-	if (buff_) delete [] buff_;
-	buff_ = new char[sz];
-	buff_sz_ = sz;
 }
 // on-off
 void RtDevice::setOnline(bool on)
@@ -105,7 +97,8 @@ void RtDevice::setBufferSize(unsigned int sz)
 {
 	if (throwIfArmed()) return;
     os::auto_lock L(comm_lock);
-	alloc_(sz);
+    buff_.resize(sz);
+    buff_sz_ = sz;
 	emit propertiesChanged();
 }
 void RtDevice::setAddress(int a)
@@ -185,17 +178,15 @@ int RtDevice::write(const QString& msg)
 	if (throwIfOffline()) return 0;
 	return write_(msg.toLatin1());
 }
-int RtDevice::read__()
-{
-    os::auto_lock L(comm_lock);
-	buff_cnt_ =  ifc->read(addr_,buff_,buff_sz_,eos_);  
-	//if (!buff_cnt_ && armed_) forcedDisarm(QString("Read from device %1 failed").arg(fullName())); 
-	return buff_cnt_;
-}
 QByteArray RtDevice::read_()
 {
-	int len = read__();
-	return QByteArray(buff_,len);
+    os::auto_lock L(comm_lock);
+    buff_.resize(buff_sz_);
+    char* mem = buff_.data();
+    int cnt =  ifc->read(addr_,mem,buff_sz_,eos_);
+    buff_.resize(cnt);
+	//if (!buff_cnt_ && armed_) forcedDisarm(QString("Read from device %1 failed").arg(fullName())); 
+    return buff_;
 }
 QString RtDevice::read() 
 {

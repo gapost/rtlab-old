@@ -26,10 +26,12 @@ protected:
 	bool online_;
 	int eot_;
 	int eos_;
-	char* buff_;
-	unsigned int buff_sz_;
-	unsigned int buff_cnt_;
 
+private:
+    QByteArray buff_;
+    uint buff_sz_;
+
+protected:
 	QPointer<RtInterface> ifc;
 
 	QVector<RtDataChannel*> inputChannels_;
@@ -47,7 +49,7 @@ public:
 	virtual void detach();
 
 	// getters
-	unsigned int bufferSize() const { return buff_sz_; }
+    unsigned int bufferSize() const { return buff_sz_; }
 	int address() const { return addr_; }
 	bool online() const { return online_; }
 	int eot() const { return eot_; }
@@ -90,7 +92,7 @@ protected:
 	void alloc_(int sz);
 
 	// io
-	int read__();
+    //int read__();
 
 public slots:
 	bool on();

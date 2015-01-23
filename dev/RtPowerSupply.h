@@ -127,7 +127,7 @@ protected:
 	uint koibAddress_;
 	bool output_enable_;
 
-	bool send_comm(const char* str, int len);
+    QByteArray send_comm(const char* str, int len);
 
 public:
 	RtKepcoDps(const QString& name, RtObject* parent, 

@@ -29,7 +29,7 @@ bool RtKeithleyDevice::setOnline_(bool on)
 	}
 	else
 	{
-        write_(defaultConfigString_());
+        //write_(defaultConfigString_());
 		//if (inputChannels_.size())
 		{
             //write("rout:scan:lsel none");
@@ -39,8 +39,8 @@ bool RtKeithleyDevice::setOnline_(bool on)
         //write_("rout:scan:lsel none");
         //write_("rout:clos (@1)");
         //write_("syst:pres");
-        //write_("*rst");
-        write_("*sre?");
+        write_("*rst");
+        write_("*sre?"); // ask something
         read_();
 		return RtDevice::setOnline_(false);
 	}
@@ -111,17 +111,17 @@ void RtKeithleyDevice::checkError(const char* msg, int len)
 	QString S;
 	int i = 0;
 	debug_ = false;
-	while ( statusByte_() && 0x04 ) 
-	{
-		 write_("syst:err?");
-		if (read__())
-		{
-			QByteArray s(buff_,buff_cnt_);
-			if (i) S += ", ";
-			S += s;
-		}
-		i++;
-	}
+    while ( statusByte_() && 0x04 )
+    {
+        write_("syst:err?");
+        QByteArray s = read_();
+        if (s.size())
+        {
+            if (i) S += ", ";
+            S += s;
+        }
+        i++;
+    }
 	if (i) pushError(QString("Error after sending %1").arg(QString(QByteArray(msg,len))),S);
 	debug_ = true;
 }
@@ -129,12 +129,12 @@ void RtKeithleyDevice::checkError(const char* msg, int len)
 bool RtKeithleyDevice::takeReading_()
 {
 	// get measurement from instrument
-	bool ret = (write("fetch?")==6) && read__();
-	if (!ret) return false;
-
+    QByteArray resp;
+    bool ret = (write("fetch?")==6) && (!(resp=read_()).isEmpty());
+    if (!ret) return false;
 	if (binary_)
 	{
-		const double* d = (const double*)(buff_ + 2);
+        const double* d = (const double*)(resp.constData() + 2);
 		if (bufferOrderReverse_)
 		{
 			for(int i= (int)(inputChannels_.size()-1); i>=0; --i)
@@ -149,7 +149,7 @@ bool RtKeithleyDevice::takeReading_()
 	}
 	else
 	{
-		QByteArray bytes = QByteArray(buff_,buff_cnt_).trimmed();
+        QByteArray bytes = resp.trimmed();
 		if (inputChannels_.size()>1)
 		{
 			QList<QByteArray> S = bytes.split(',');

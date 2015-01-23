@@ -294,8 +294,9 @@ bool RtResistanceController::setCurrent_(double& i)
 	i = 10.*d1/4095;
 	int d2 = 255;
 
-	int len = sprintf(buff_,"%1d%03X%02X",mode,d1,d2);
-	bool ret =  write_(buff_,len)==len;
+    char mybuff[16];
+    int len = sprintf(mybuff,"%1d%03X%02X",mode,d1,d2);
+    bool ret =  write_(mybuff,len)==len;
 	
 	if (mode==5) i *= -1;
 	return ret;

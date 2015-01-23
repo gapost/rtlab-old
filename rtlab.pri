@@ -16,13 +16,14 @@ win32 {
         DEFINES += USE_WAGO_MBT
     }
 
-    ############## NI-DAQ ##############
-    LIBS += -L$$PWD/../3rdparty/ni-daq-8.6/Lib/ -lnidaq32
-    INCLUDEPATH += $$PWD/../3rdparty/ni-daq-8.6/Include
-    DEPENDPATH += $$PWD/../3rdparty/ni-daq-8.6/Include
-
-    ############## NI-DAQmx ##############
+############## NI-DAQmx ##############
+contains(QMAKE_HOST.arch, x86_64):{
+# for 64bit windows
     DAQMX_PATH = "c:/Program Files (x86)/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
+} else {
+# for 32 bit
+    DAQMX_PATH = "c:/Program Files/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
+}
     LIBS += -L$$DAQMX_PATH//Lib/msvc -lnidaqmx
     INCLUDEPATH += $$DAQMX_PATH/include/
 
@@ -86,10 +87,6 @@ DEPENDPATH += $$PWD/../3rdparty/Qwt-6.1.2-qt-5.4.0-msvc2010/include
 
     DEFINES += finite=_finite
 }
-
-win32-g++: DEFINES += H5_SIZEOF_SSIZE_T=1
-
-
 
 ############# linux ##############
 unix {

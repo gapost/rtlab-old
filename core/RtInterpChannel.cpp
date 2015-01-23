@@ -41,10 +41,13 @@ void RtInterpolationChannel::run()
 	RtDataChannel* in = getInputChannel();
 	if (in->dataReady())
 	{
-		double val(in->value()); //, dv(in->std());
 		if (interpolator_) 
-			val = gsl_interp_eval(interpolator_, xa.begin(), ya.begin(), val, accel_);
-		push(val);
+        {
+            double val;
+            int ret = gsl_interp_eval_e(interpolator_, xa.begin(), ya.begin(), in->value(), accel_, &val);
+            if (ret==0)	push(val);
+        }
+        else push(in->value());
 	}
 	RtDataChannel::postRun();
 }

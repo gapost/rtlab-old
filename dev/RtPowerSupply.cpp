@@ -242,8 +242,9 @@ bool RtTTiDevice::setCurrent_(double& i)
 	int o = 1;
 	if (i<1e-6) o=0;
 	if (i>cc_) i = cc_;
-	int len = sprintf(buff_,"I%d %g;V%d %g;OP%d %d",outno_,i,outno_,cv_,outno_,o);
-	return write_(buff_,len)==len;
+    char mybuff[128];
+    int len = sprintf(mybuff,"I%d %g;V%d %g;OP%d %d",outno_,i,outno_,cv_,outno_,o);
+    return write_(mybuff,len)==len;
 }
 bool RtTTiDevice::setVoltage_(double& v)
 {
@@ -251,8 +252,9 @@ bool RtTTiDevice::setVoltage_(double& v)
 	int o = 1;
 	if (v<1e-6) o=0;
 	if (v>cv_) v = 60;
-	int len = sprintf(buff_,"V%d %g;I%d %g;OP%d %d",outno_,v,outno_,cc_,outno_,o);
-	return write_(buff_,len)==len;
+    char mybuff[128];
+    int len = sprintf(mybuff,"V%d %g;I%d %g;OP%d %d",outno_,v,outno_,cc_,outno_,o);
+    return write_(mybuff,len)==len;
 }
 void RtTTiDevice::run()
 {
@@ -262,11 +264,10 @@ void RtTTiDevice::run()
 	float v;
 	int lsr;
 	// get limit status register
-	len = sprintf(buff_,"LSR%d?",outno_);
-	write_(buff_,len);
-	len = read__();
-	buff_[len]=0;
-	len = sscanf(buff_,"%d",&lsr);
+    char mybuff[16];
+    len = sprintf(mybuff,"LSR%d?",outno_);
+    write_(mybuff,len);
+    len = sscanf(read_().constData(),"%d",&lsr);
 	if ( lsr & 64 ) // if bit 6 set -> Over T trip
 	{
 		pushError(QString("Over Temperature Trip on output %1").arg(outno_));
@@ -283,19 +284,15 @@ void RtTTiDevice::run()
 		return;
 	}
 	// get actual output voltage
-	len = sprintf(buff_,"V%dO?",outno_);
-	write_(buff_,len);
-	len = read__();
-	buff_[len]=0;
-	len = sscanf(buff_,"%fV",&v);
+    len = sprintf(mybuff,"V%dO?",outno_);
+    write_(mybuff,len);
+    len = sscanf(read_().constData(),"%fV",&v);
 	outputChannels_[ConstantVoltage]->push(v);
 	outputChannels_[ConstantVoltage]->forceProcces(); // so that updated value is availiable in RtPowerSupply::run();
 	// get actual output current
-	len = sprintf(buff_,"I%dO?",outno_);
-	write_(buff_,len);
-	len = read__();
-	buff_[len]=0;
-	len = sscanf(buff_,"%fA",&v);
+    len = sprintf(mybuff,"I%dO?",outno_);
+    write_(mybuff,len);
+    len = sscanf(read_().constData(),"%fA",&v);
 	outputChannels_[ConstantCurrent]->push(v);
 	outputChannels_[ConstantCurrent]->forceProcces(); // so that updated value is availiable in RtPowerSupply::run();
 
@@ -738,8 +735,9 @@ bool RtKepcoBop::setCurrent_(double& i)
 
 	
 	if (d2>255) d2 = 255;
-	int len = sprintf(buff_,"%1d%03X%02X",mode,d1,d2);
-	bool ret =  write_(buff_,len)==len;
+    char mybuff[16];
+    int len = sprintf(mybuff,"%1d%03X%02X",mode,d1,d2);
+    bool ret =  write_(mybuff,len)==len;
 	
 	if (mode==5) i *= -1;
 	return ret;
@@ -794,8 +792,9 @@ bool RtKepcoBop::setVoltage_(double& v)
 
 	if (d1>4095) d1 = 4095;
 	if (d2>255) d2 = 255;
-	int len = sprintf(buff_,"%1d%03X%02X",mode,d1,d2);
-	bool ret = write_(buff_,len)==len;
+    char mybuff[16];
+    int len = sprintf(mybuff,"%1d%03X%02X",mode,d1,d2);
+    bool ret = write_(mybuff,len)==len;
 	
 	if (mode==1) v *= -1;
 	return ret;
@@ -819,16 +818,14 @@ bool RtKepcoDps::setVoltage_(double& v)
 	if (v>12.5) v=12.5;
 	char buff[64];
 	int len = sprintf(buff,"STV=%.2f", v);
-	bool ret = send_comm(buff,len);
-	
-	return ret;
+    return send_comm(buff,len).size();
 }
 bool RtKepcoDps::setOutputEnable_(bool on)
 {
 	int len;
 	char buff[64];
 	len = on ? sprintf(buff,"SOP=ON") : sprintf(buff,"SOP=OFF");
-	bool ret = send_comm(buff,len);
+    bool ret = send_comm(buff,len).size();
 	if (ret) 
 	{
 		output_enable_ = on;
@@ -845,11 +842,11 @@ bool RtKepcoDps::setOnline_(bool on)
 		int len;
 		char buff[64];
 		len = sprintf(buff,"ZER"); // clear errors
-		if (!send_comm(buff,len)) return RtDevice::setOnline_(false);
+        if (!send_comm(buff,len).size()) return RtDevice::setOnline_(false);
 		len = sprintf(buff,"SMD=CC"); // cc mode
-		if (!send_comm(buff,len)) return RtDevice::setOnline_(false);
+        if (!send_comm(buff,len).size()) return RtDevice::setOnline_(false);
 		len = sprintf(buff,"SCC=%f.2",cc_); // cc value
-		if (!send_comm(buff,len)) return RtDevice::setOnline_(false);
+        if (!send_comm(buff,len).size()) return RtDevice::setOnline_(false);
 		return true;
 	}
 	else
@@ -868,28 +865,29 @@ void RtKepcoDps::setKoibAddress(uint v)
 	emit propertiesChanged();
 }
 
-bool RtKepcoDps::send_comm(const char* str, int len)
+QByteArray RtKepcoDps::send_comm(const char* str, int len)
 {
 	static const char RxOK = (char)0xC0;
 
 	char adr = (char)koibAddress_;
 	char devsel = adr + (char)0xE0, Rx;
+    QByteArray resp;
 	int nrecv = 0;
 	if (ifc->write(addr_,&devsel,1,0) && 
 		ifc->read(addr_,&Rx,1,0) &&
 		Rx == adr + RxOK &&
 		ifc->write(addr_,str,len,eot_) &&
-		(nrecv = ifc->read(addr_,buff_,buff_sz_,eos_)) &&
-		buff_[0] == RxOK)
+        //(nrecv = ifc->read(addr_,buff_,buff_sz_,eos_)) &&
+        !(resp = read_()).isEmpty() &&
+        resp.at(0) == RxOK)
 	{
-		buff_[nrecv] = 0;
-		return true;
-	}
+        resp = resp.right(resp.size()-1);
+    }
 	else
 	{
 		pushError( QString("Command failed"), QByteArray(str,len) );
-		return false;
 	}
+    return resp;
 }
 
 bool RtKepcoDps::update_cc_(double v)
@@ -898,7 +896,7 @@ bool RtKepcoDps::update_cc_(double v)
 	if (!online_) return true;
 	char buff[64];
 	int len = sprintf(buff,"SCC=%f.2",v);
-	return send_comm(buff,len);
+    return send_comm(buff,len).size();
 }
 
 bool RtKepcoDps::setOutputEnable(bool on)
@@ -914,9 +912,10 @@ float RtKepcoDps::readCurrent()
 	float i(0.); 
 	if (throwIfArmed()) return i;
 	if (throwIfOffline()) return i;
-	if (send_comm("RTC",3))
+    QByteArray resp = send_comm("RTC",3);
+    if (!resp.isEmpty())
 	{
-		sscanf(buff_+1,"RTC=%fA",&i);
+        sscanf(resp.constData(),"RTC=%fA",&i);
 	}
 	return i;
 }
@@ -925,9 +924,10 @@ float RtKepcoDps::readVoltage()
 	float i(0.); 
 	if (throwIfArmed()) return i;
 	if (throwIfOffline()) return i;
-	if (send_comm("RTV",3))
+    QByteArray resp = send_comm("RTV",3);
+    if (!resp.isEmpty())
 	{
-		sscanf(buff_+1,"RTV=%fV",&i);
+        sscanf(resp.constData(),"RTV=%fV",&i);
 	}
 	return i;
 }
