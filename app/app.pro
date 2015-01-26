@@ -84,4 +84,7 @@ OTHER_FILES += \
     script/testAI.qs \
     script/testMain.qs
 
+DISTFILES += \
+    script/testTcpip.qs
+
 

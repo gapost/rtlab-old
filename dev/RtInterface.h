@@ -5,7 +5,8 @@
 
 #include <QVector>
 #include <QHostAddress>
-#include <QTcpSocket>
+
+#include "tcp_socket.h"
 
 class RtDevice;
 
@@ -74,7 +75,7 @@ class RtTcpip : public RtInterface
 protected:
 	uint port_;
 	QHostAddress host_;
-	QTcpSocket socket_;
+    tcp_socket socket_;
 public:
 	RtTcpip(const QString& name, RtObject* parent, const QString& ahost = QString(), uint portno = 0);
 	virtual ~RtTcpip();

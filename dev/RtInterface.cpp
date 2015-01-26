@@ -116,8 +116,9 @@ void RtTcpip::setHost(const QString& h)
 	if (throwIfOpen()) return;
 	else
 	{
-		host_.setAddress(h);
-		emit propertiesChanged();
+        if (host_.setAddress(h))
+            emit propertiesChanged();
+        else throwScriptError("Invalid IP address.");
 	}
 }
 
@@ -128,15 +129,15 @@ int RtTcpip::read(uint port, char* buff, int len, int eos)
 	port=port;
 	eos=eos;
 
-	if (!socket_.isOpen()) return 0;
+    if (!socket_.is_connected()) return 0;
 
-	if (socket_.bytesAvailable() || socket_.waitForReadyRead(timeout_))
-		return socket_.read(buff,len);
-	else
-	{
-		pushError("Read timed-out");
-		return 0;
-	}
+    int rc = socket_.receive(buff,len);
+    if (rc==-1){
+        pushError("Socket recieve error.",socket_.strerror(errno));
+        return 0;
+    }
+
+    return rc;
 }
 
 int RtTcpip::write(uint port, const char* buff, int len, int eos)
@@ -146,31 +147,28 @@ int RtTcpip::write(uint port, const char* buff, int len, int eos)
 	port=port;
 	eos=eos;
 
-	if (!socket_.isOpen()) return 0;
+    if (!socket_.is_connected()) return 0;
 
-	int w = socket_.write(buff,len);
-	if (w && socket_.waitForBytesWritten(timeout_))
-		return w;
-	else
+    int w = socket_.send(buff,len);
+    if (w==-1)
 	{
-		pushError("Write timed-out");
+        pushError("Socket send error.",socket_.strerror(errno));
 		return 0;
 	}
 
+    return w;
 }
 
 bool RtTcpip::open_()
 {
-	if (isOpen() && socket_.isOpen()) return true;
+    if (isOpen() && socket_.is_connected()) return true;
+
 	os::auto_lock L(comm_lock);
 
-	socket_.connectToHost(host_,port_);
-	if (!(isOpen_=socket_.waitForConnected(timeout_)))
-	{
-		socket_.close();
-		pushError("Open tcpip timeout"); 
-	
-	}
+    isOpen_ = socket_.connect(host_.toString().toLatin1().constData(), port_)!=-1;
+    if (!isOpen_)
+        pushError("Socket connect failed",socket_.strerror(errno));
+
 	emit propertiesChanged();
 
 	return isOpen();
@@ -180,7 +178,7 @@ void RtTcpip::close_()
 {
 	os::auto_lock L(comm_lock);
 	RtInterface::close_();
-	socket_.close();
+    socket_.disconnect();
 }
 
 

@@ -17,7 +17,7 @@ RtObject(name,"Acquisition devices folder",parent)
 {
 	canBeKilled_ = false;
 }
-void RtAcquisition::newInterface(const QString& name, const QString& type, uint addr)
+RtObject * RtAcquisition::newInterface(const QString& name, const QString& type, uint addr)
 {
 	static const char* InvalidTypeMsg = 
 		"Invalid interface type specification.\n"
@@ -27,7 +27,7 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
         "  \"MODBUS-TCP\", modbus-tcp protocol comms\n";
 
 	// check name
-	if (!checkName(name)) return;
+    if (!checkName(name)) return 0;
 
 	// check the type
 	int idx = -1;
@@ -37,7 +37,7 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
     else
 	{
 		throwScriptError(InvalidTypeMsg);
-		return;
+        return 0;
 	}
 
 	RtInterface* dev = 0;
@@ -54,9 +54,10 @@ void RtAcquisition::newInterface(const QString& name, const QString& type, uint 
         break;
     }
 	createScriptObject(dev);
+    return dev;
 }
 
-void RtAcquisition::newDevice(const QString& name, RtInterface* ifc, int addr, const QString& model)
+RtObject *RtAcquisition::newDevice(const QString& name, RtInterface* ifc, int addr, const QString& model)
 {
 	static const char* InvalidModelMsg = 
 		"Invalid model specification.\n"
@@ -73,7 +74,7 @@ void RtAcquisition::newDevice(const QString& name, RtInterface* ifc, int addr, c
 
 
 	// check name
-	if (!checkName(name)) return;
+    if (!checkName(name)) return 0;
 
 	// check address
 	/*if (!ifc->isValidPort(addr))
@@ -97,7 +98,7 @@ void RtAcquisition::newDevice(const QString& name, RtInterface* ifc, int addr, c
         else
 		{
 			throwScriptError(InvalidModelMsg);
-			return;
+            return 0;
 		}
 	}
 
@@ -133,25 +134,29 @@ void RtAcquisition::newDevice(const QString& name, RtInterface* ifc, int addr, c
         break;
     }
 	if (dev) createScriptObject(dev);
+    return dev;
 }
 
-void RtAcquisition::newTemperatureController(const QString& name, RtDataChannel* tc)
+RtObject *RtAcquisition::newTemperatureController(const QString& name, RtDataChannel* tc)
 {
-	if (!checkName(name)) return;
+    if (!checkName(name)) return 0;
 	if (tc)
 	{
 		RtTemperatureController* dev = new RtTemperatureController(name,this,tc);
 		createScriptObject(dev);
+        return dev;
 	}
 	else throwScriptError("Invalid temperature channel.");
+    return 0;
 }
 
-void RtAcquisition::newDAQmxTask(const QString &name)
+RtObject *RtAcquisition::newDAQmxTask(const QString &name)
 {
 #ifdef _WIN32
-    if (!checkName(name)) return;
+    if (!checkName(name)) return 0;
     RtDAQmxTask* task = new RtDAQmxTask(name,this);
     if (task) createScriptObject(task);
+    return task;
 #elif __linux__
     throwScriptError("Not supported under Linux");
 #endif

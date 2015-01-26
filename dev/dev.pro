@@ -21,7 +21,8 @@ SOURCES += RtDev.cpp \
     RtResistanceController.cpp \
     RtAxis.cpp \
     rtgpib.cpp \
-    rtmodbus.cpp
+    rtmodbus.cpp \
+    tcp_socket.cpp
 
 HEADERS += RtDev.h \
     RtDevice.h \
@@ -35,7 +36,8 @@ HEADERS += RtDev.h \
     RtAxis.h \
     rtgpib.h \
     rtmodbus.h \
-    rtdaq.h
+    rtdaq.h \
+    tcp_socket.h
 
 win32 {
 HEADERS += rtdaqmxtask.h \

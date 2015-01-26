@@ -872,7 +872,7 @@ QByteArray RtKepcoDps::send_comm(const char* str, int len)
 	char adr = (char)koibAddress_;
 	char devsel = adr + (char)0xE0, Rx;
     QByteArray resp;
-	int nrecv = 0;
+    //int nrecv = 0;
 	if (ifc->write(addr_,&devsel,1,0) && 
 		ifc->read(addr_,&Rx,1,0) &&
 		Rx == adr + RxOK &&
