@@ -44,10 +44,9 @@ HEADERS += \
     RtSession.h \
     RtScriptJob.h \
     RtDelegates.h \
-    objectcontroller.h
-
-win32: HEADERS += os_util_win32.h
-unix:  HEADERS += os_util_linux.h
+    objectcontroller.h \
+    os_utils_linux.h \
+    os_utils_win32.h
 
 SOURCES += \
     RtObject.cpp \
