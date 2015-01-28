@@ -79,6 +79,9 @@ class RtDataChannel : public RtJob
      */
     Q_PROPERTY(int precision READ precision WRITE setPrecision)
 
+    Q_ENUMS(AveragingType)
+
+
 public:
 	/** Type of channel averaging.	
 	*/	

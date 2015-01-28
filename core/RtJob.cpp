@@ -127,11 +127,12 @@ bool RtJob::setArmed(bool on)
 	emit propertiesChanged();
 	return armed_;
 }
-void RtJob::newJob(const QString& name, const QString& classname)
+RtObject *RtJob::newJob(const QString& name, const QString& classname)
 {
-	if (!checkName(name)) return;
+    if (!checkName(name)) return 0;
 	RtJob* j = newJobImpl(this, context(), name, classname);
 	if (j) this->createScriptObject(j);
+    return j;
 }
 RtJob* RtJob::newJobImpl(RtObject* parent, QScriptContext* ctx, 
 				  const QString& name, const QString& className)
@@ -302,18 +303,20 @@ RtJobFolder::~RtJobFolder(void)
 {
 }
 
-void RtJobFolder::newTimer(const QString& name, unsigned int period_ms)
+RtObject* RtJobFolder::newTimer(const QString& name, unsigned int period_ms)
 {
-	if (!checkName(name)) return;
+    if (!checkName(name)) return 0;
 	RtTimerLoop* obj = new RtTimerLoop(name,this,period_ms);
 	createScriptObject(obj);
+    return obj;
 }
 
-void RtJobFolder::newJob(const QString& name, const QString& classname)
+RtObject *RtJobFolder::newJob(const QString& name, const QString& classname)
 {
-	if (!checkName(name)) return;
+    if (!checkName(name)) return 0;
 	RtJob* j = RtJob::newJobImpl(this,context(),name,classname);
 	if (j) createScriptObject(j);
+    return j;
 }
 
 

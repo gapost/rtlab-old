@@ -85,6 +85,7 @@ OTHER_FILES += \
     script/testMain.qs
 
 DISTFILES += \
-    script/testTcpip.qs
+    script/testTcpip.qs \
+    script/testDeltaMode.qs
 
 

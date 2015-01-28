@@ -110,7 +110,7 @@ public slots:
 	/// Disarm the job & child-jobs.
 	void disarm() { setArmed(false); }
 	/// Create a new job of specified class
-	void newJob(const QString& name, const QString& classname);
+    RtObject* newJob(const QString& name, const QString& classname);
 };
 
 /** Base class of all RtLab loops.
@@ -179,8 +179,8 @@ public:
 	RtJobFolder(const QString& name, RtObject* parent);
 	virtual ~RtJobFolder(void);
 public slots:
-	void newJob(const QString& name, const QString& className);
-	void newTimer(const QString& name, unsigned int period_ms = 1000);
+    RtObject* newJob(const QString& name, const QString& className);
+    RtObject* newTimer(const QString& name, unsigned int period_ms = 1000);
 };
 
 #endif

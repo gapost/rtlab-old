@@ -133,7 +133,7 @@ int RtTcpip::read(uint port, char* buff, int len, int eos)
 
     int rc = socket_.receive(buff,len);
     if (rc==-1){
-        pushError("Socket recieve error.",socket_.strerror(errno));
+        pushError("Socket recieve error.",tcp_socket::lastErrorStr());
         return 0;
     }
 
@@ -152,7 +152,7 @@ int RtTcpip::write(uint port, const char* buff, int len, int eos)
     int w = socket_.send(buff,len);
     if (w==-1)
 	{
-        pushError("Socket send error.",socket_.strerror(errno));
+        pushError("Socket send error.",tcp_socket::lastErrorStr());
 		return 0;
 	}
 
@@ -167,7 +167,7 @@ bool RtTcpip::open_()
 
     isOpen_ = socket_.connect(host_.toString().toLatin1().constData(), port_)!=-1;
     if (!isOpen_)
-        pushError("Socket connect failed",socket_.strerror(errno));
+        pushError("Socket connect failed",tcp_socket::lastErrorStr());
 
 	emit propertiesChanged();
 

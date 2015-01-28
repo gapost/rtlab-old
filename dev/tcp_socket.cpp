@@ -52,7 +52,7 @@ static int tcp_init(void)
 
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
-        errno = EIO;
+        //errno = EIO;
         return -1;
     }
 #endif
@@ -140,7 +140,11 @@ static int _connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen,
         if (rc == 0 && optval == 0) {
             return 0;
         } else {
+#ifdef OS_WIN32
+            WSASetLastError(WSAECONNREFUSED);
+#else
             errno = ECONNREFUSED;
+#endif
             return -1;
         }
     }
@@ -151,7 +155,12 @@ static int _select(int fd, fd_set *rset, timeval *tv)
 {
     int s_rc;
     while ((s_rc = ::select(fd+1, rset, NULL, NULL, tv)) == -1) {
+#ifdef OS_WIN32
+        if (WSAGetLastError()==WSAEINTR) {
+#else
         if (errno == EINTR) {
+#endif
+
             //if (debug) {
             //    fprintf(stderr, "A non blocked signal was caught\n");
             //}
@@ -164,7 +173,11 @@ static int _select(int fd, fd_set *rset, timeval *tv)
     }
 
     if (s_rc == 0) {
+#ifdef OS_WIN32
+        WSASetLastError(WSAETIMEDOUT);
+#else
         errno = ETIMEDOUT;
+#endif
         return -1;
     }
 
@@ -194,12 +207,20 @@ void tcp_socket::set_timeout(int ms)
 int tcp_socket::connect(const char *aip, int aport)
 {
     if (aip==NULL) {
+#ifdef OS_WIN32
+        WSASetLastError(WSAEINVAL);
+#else
         errno = EINVAL;
+#endif
         return -1;
     }
     ip.assign(aip);
     if (ip.size()>15) {
+#ifdef OS_WIN32
+        WSASetLastError(WSAEINVAL);
+#else
         errno = EINVAL;
+#endif
         return -1;
     }
     port = aport;
@@ -247,10 +268,17 @@ int tcp_socket::connect(const char *aip, int aport)
     response_timeout.tv_usec = timo_us;
     rc = _connect(sfd, (struct sockaddr *)&addr, sizeof(addr), &response_timeout);
     if (rc == -1) {
+#ifdef OS_WIN32
+        int err_ = WSAGetLastError();
+        close(sfd);
+        sfd = -1;
+        WSASetLastError(err_);
+#else
         int err_ = errno; // close will clear it
         close(sfd);
         sfd = -1;
         errno = err_;
+#endif
         return -1;
     }
 
@@ -278,7 +306,11 @@ int tcp_socket::send(const char *msg, int len)
 
 
     if (rc > 0 && rc != len) {
+#ifdef OS_WIN32
+        WSASetLastError(EBADDATA);
+#else
         errno = EBADDATA;
+#endif
         return -1;
     }
 
@@ -310,7 +342,11 @@ int tcp_socket::receive(char *msg, int len)
 
     rc = ::recv(sfd, msg, len, 0);
     if (rc == 0) {
+#ifdef OS_WIN32
+        WSASetLastError(WSAECONNRESET);
+#else
         errno = ECONNRESET;
+#endif
         rc = -1;
     }
 
@@ -358,6 +394,31 @@ const char *tcp_socket::strerror(int errnum) {
     default:
         return strerror(errnum);
     }
+}
+
+const char *tcp_socket::lastErrorStr()
+{
+#ifdef OS_WIN32
+    // Retrieve the system error message for the last-error code
+
+     static char MsgBuf[1024];
+     DWORD dw = WSAGetLastError();
+
+     int ret = FormatMessageA(
+                 FORMAT_MESSAGE_FROM_SYSTEM |
+                 FORMAT_MESSAGE_IGNORE_INSERTS,
+                 NULL,
+                 dw,
+                 1033,
+                 (LPSTR) &MsgBuf,
+                 1024, NULL );
+
+     MsgBuf[ret] = 0;
+
+     return MsgBuf;
+#else
+    return tcp_socket::strerror(errno);
+#endif
 }
 
 
