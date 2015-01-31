@@ -1,3 +1,5 @@
+include(rtlab_config.pri)
+
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets uitools
 } else {
@@ -7,25 +9,15 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 ############## 3rd Party Libs for win32 ###############
 
 win32 {
-    ############## WAGO ModBus-TCP ##############
-    CONFIG += wago_mbt
-    wago_mbt {
-        LIBS += -L$$PWD/../3rdparty/wago_modbus_tcp/lib/ -lMBT
-        INCLUDEPATH += $$PWD/../3rdparty/wago_modbus_tcp/include
-        DEPENDPATH += $$PWD/../3rdparty/wago_modbus_tcp/include
-        DEFINES += USE_WAGO_MBT
-    }
 
 ############## NI-DAQmx ##############
-contains(QMAKE_HOST.arch, x86_64):{
-# for 64bit windows
-    DAQMX_PATH = "c:/Program Files (x86)/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
-} else {
-# for 32 bit
-    DAQMX_PATH = "c:/Program Files/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
+nidaqmx {
+DAQMX_PATH = "c:/Program Files (x86)/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
+#    DAQMX_PATH = "c:/Program Files/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
+LIBS += -L$$DAQMX_PATH//Lib/msvc -lnidaqmx
+INCLUDEPATH += $$DAQMX_PATH/include/
+DEFINES += USE_NIDAQMX
 }
-    LIBS += -L$$DAQMX_PATH//Lib/msvc -lnidaqmx
-    INCLUDEPATH += $$DAQMX_PATH/include/
 
     ############## NI-488.2 ##############
     LIBS += -L$$PWD/../3rdparty/ni4882-1.6 gpib-32.obj
@@ -109,11 +101,9 @@ LIBS += -lqwt
 
 
     ############## HDF5 ##############
-    #INCLUDEPATH += /usr/include
     LIBS += -lhdf5 -lhdf5_cpp
 
     ############## muParser ##############
-    #INCLUDEPATH += /usr/include
     LIBS += -lmuparser
 
 ######### linux-gpib ############
@@ -122,6 +112,7 @@ LIBS += -lgpib
 ######### libmodbus #############
 LIBS += -lmodbus
 INCLUDEPATH += /usr/include/modbus
+
 }
 
 OTHER_FILES += \

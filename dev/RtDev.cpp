@@ -150,18 +150,15 @@ RtObject *RtAcquisition::newTemperatureController(const QString& name, RtDataCha
     return 0;
 }
 
+#if defined(_WIN32) && defined(USE_NIDAQMX)
 RtObject *RtAcquisition::newDAQmxTask(const QString &name)
 {
-#ifdef _WIN32
     if (!checkName(name)) return 0;
     RtDAQmxTask* task = new RtDAQmxTask(name,this);
     if (task) createScriptObject(task);
     return task;
-#elif __linux__
-    throwScriptError("Not supported under Linux");
-#endif
-
 }
+#endif
 
 
 
