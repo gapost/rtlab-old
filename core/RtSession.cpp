@@ -14,6 +14,7 @@
 #include <QStringList>
 #include <QScriptValueIterator>
 #include <QDir>
+#include <QProcess>
 
 
 #define PROC_EVENTS_INTERVAL 250
@@ -320,6 +321,18 @@ void RtSession::restoreWindowState(const QString& fname)
     }
     // if file could not open do nothing
     //else engine_->currentContext()->throwError("File could not be opened.");
+}
+
+QString RtSession::system(const QString &comm)
+{
+    QProcess p;
+    //comm.split(QChar(' '),QString::SkipEmptyParts);
+    p.start(comm);
+    bool ret = p.waitForFinished(1000);
+    QByteArray pout = p.readAllStandardOutput();
+    QByteArray perr = p.readAllStandardError();
+    QByteArray pall = p.readAll();
+    return QString(pout);
 }
 
 

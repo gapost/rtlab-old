@@ -61,6 +61,9 @@ public slots:
     // timing
     void tic() { watch_.start(); }
     double toc() { watch_.stop(); return watch_.sec(); }
+    // system call
+    QString system(const QString& comm);
+
 
 
 signals:
