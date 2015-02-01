@@ -10,6 +10,7 @@
 #include "rtdaq.h"
 #include "rtgpib.h"
 #include "rtmodbus.h"
+#include "rtserialinterface.h"
 
 
 RtAcquisition::RtAcquisition(const QString& name, RtObject* parent) :
@@ -23,6 +24,7 @@ RtObject * RtAcquisition::newInterface(const QString& name, const QString& type,
 		"Invalid interface type specification.\n"
 		"Valid types are:\n"
         "  \"TCPIP\", Standard Tcp/Ip communications\n"
+        "  \"SERIAL\", Serial port communications\n"
         "  \"GPIB\", IEEE488.2 communications\n"
         "  \"MODBUS-TCP\", modbus-tcp protocol comms\n";
 
@@ -34,6 +36,7 @@ RtObject * RtAcquisition::newInterface(const QString& name, const QString& type,
     if (type=="TCPIP") idx=0;
     else if (type=="GPIB") idx=1;
     else if (type=="MODBUS-TCP") idx=2;
+    else if (type=="SERIAL") idx=3;
     else
 	{
 		throwScriptError(InvalidTypeMsg);
@@ -52,6 +55,8 @@ RtObject * RtAcquisition::newInterface(const QString& name, const QString& type,
     case 2:
         dev = new RtModbus(name,this);
         break;
+    case 3:
+        dev = new RtSerialInterface(name,this);
     }
 	createScriptObject(dev);
     return dev;

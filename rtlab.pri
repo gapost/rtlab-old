@@ -32,14 +32,15 @@ DEFINES += USE_NIDAQMX
 greaterThan(QT_MAJOR_VERSION, 4) {
 # Qwt-6
 DEFINES += QWT_DLL
-LIBS += -L$$PWD/../3rdparty/Qwt-6.1.2-qt-5.4.0-msvc2010/lib/
+QWT_PATH = $$PWD/../3rdparty/Qwt6-Qt5-msvc2010
+LIBS += -L$$QWT_PATH/lib/
 CONFIG(release, debug|release) {
     LIBS += -lqwt
 } else {
     LIBS += -lqwtd
 }
-INCLUDEPATH += $$PWD/../3rdparty/Qwt-6.1.2-qt-5.4.0-msvc2010/include
-DEPENDPATH += $$PWD/../3rdparty/Qwt-6.1.2-qt-5.4.0-msvc2010/include
+INCLUDEPATH += $$QWT_PATH/include
+DEPENDPATH += $$QWT_PATH/include
 } else {
     ############## Qwt-5.2.1 ##############
     DEFINES += QWT_DLL
@@ -66,14 +67,20 @@ DEPENDPATH += $$PWD/../3rdparty/Qwt-6.1.2-qt-5.4.0-msvc2010/include
         LIBS += -lmuparser
     }
 
-    ############# libmodbus ##############
-    LIBMODBUS_PATH = $$PWD/../3rdparty/libmodbus-3.1.1/src
-    INCLUDEPATH += $$LIBMODBUS_PATH
-    LIBS += -lsetupapi -lwsock32 ws2_32.lib advapi32.lib
+############# libmodbus ##############
+LIBMODBUS_PATH = $$PWD/../3rdparty/libmodbus/src
+INCLUDEPATH += $$LIBMODBUS_PATH
+LIBS += -L$$LIBMODBUS_PATH/win32
+CONFIG(debug, debug|release) {
+    LIBS += -lmodbusd
+} else {
+    LIBS += -lmodbus
+}
+#LIBS += -lsetupapi -lwsock32 ws2_32.lib advapi32.lib
 
 
     ######## Win32 Libs ##########
-    LIBS += winmm.lib user32.lib
+    LIBS += winmm.lib user32.lib ws2_32.lib
 
     DEFINES += _CRT_SECURE_NO_WARNINGS
 

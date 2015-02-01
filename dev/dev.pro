@@ -12,6 +12,8 @@ CONFIG += staticlib
 
 include ( ../rtlab.pri )
 
+include ($$PWD/../../3rdparty/qextserialport/src/qextserialport.pri)
+
 SOURCES += RtDev.cpp \
     RtDevice.cpp \
     RtInterface.cpp \
@@ -22,7 +24,8 @@ SOURCES += RtDev.cpp \
     RtAxis.cpp \
     rtgpib.cpp \
     rtmodbus.cpp \
-    tcp_socket.cpp
+    tcp_socket.cpp \
+    rtserialinterface.cpp
 
 HEADERS += RtDev.h \
     RtDevice.h \
@@ -37,23 +40,15 @@ HEADERS += RtDev.h \
     rtgpib.h \
     rtmodbus.h \
     rtdaq.h \
-    tcp_socket.h
+    tcp_socket.h \
+    rtserialinterface.h
 
-win32 {
+
+nidaqmx {
 HEADERS += rtdaqmxtask.h \
            daqmx.h
 SOURCES += rtdaqmxtask.cpp \
            daqmx.cpp
-}
-
-win32 {
-SOURCES += $$LIBMODBUS_PATH/modbus.c \
-        $$LIBMODBUS_PATH/modbus-data.c \
-        $$LIBMODBUS_PATH/modbus-rtu.c \
-        $$LIBMODBUS_PATH/modbus-tcp.c
-
-HEADERS += $$LIBMODBUS_PATH/modbus.h \
-        $$LIBMODBUS_PATH/config.h
 }
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lRtCore
