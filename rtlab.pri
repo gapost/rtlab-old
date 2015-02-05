@@ -55,8 +55,8 @@ DEPENDPATH += $$QWT_PATH/include
 
     ############## HDF5 ##############
     DEFINES += _HDF5USEDLL_ HDF5CPP_USEDLL
-    INCLUDEPATH += $$PWD/../3rdparty/hdf5-1.8.10/include
-    LIBS += -L$$PWD/../3rdparty/hdf5-1.8.10/lib -lhdf5dll -lhdf5_cppdll
+    INCLUDEPATH += $$PWD/../3rdparty/hdf5-1.8.13/include
+    LIBS += -L$$PWD/../3rdparty/hdf5-1.8.13/lib -lhdf5 -lhdf5_cpp
 
     ############## muParser ##############
     INCLUDEPATH += $$PWD/../3rdparty/muparser_v2_2_3/include

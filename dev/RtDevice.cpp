@@ -4,7 +4,7 @@ RtDevice::RtDevice(const QString& name, const QString& desc, RtObject* parent,
 		RtInterface* aifc,  int addr, uint buffsz) : 
 RtJob(name,desc,parent), online_(false), addr_(addr),
 buff_(buffsz,char(0)), buff_sz_(buffsz),
-eos_(0x100), 
+eot_(0x02 << 8), eos_(0x100),
 ifc(aifc)
 {
 }
