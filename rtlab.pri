@@ -12,8 +12,8 @@ win32 {
 
 ############## NI-DAQmx ##############
 nidaqmx {
-DAQMX_PATH = "c:/Program Files (x86)/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
-#    DAQMX_PATH = "c:/Program Files/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
+#DAQMX_PATH = "c:/Program Files (x86)/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
+DAQMX_PATH = "c:/Program Files/National Instruments/NI-DAQ/DAQmx ANSI C Dev"
 LIBS += -L$$DAQMX_PATH//Lib/msvc -lnidaqmx
 INCLUDEPATH += $$DAQMX_PATH/include/
 DEFINES += USE_NIDAQMX

@@ -52,6 +52,7 @@ void RtDataContainer::removeVector(RtVector* v)
 void RtDataContainer::newVector(const QString& name, uint sz)
 {
 	if (!checkName(name)) return;
+    if (sz==0) sz=32;
 	RtVector* obj = new RtVector(name,this,sz);
 	obj->setType(type_);
 	createScriptObject(obj);
@@ -68,6 +69,7 @@ void RtDataContainer::newVector(const QStringList& names, uint sz)
 	{
 		if (!checkName(name)) return;
 	}
+    if (sz==0) sz=32;
 	foreach(const QString& name, names)
 	{
 		RtVector* obj = new RtVector(name,this,sz);

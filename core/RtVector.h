@@ -53,8 +53,8 @@ public:
 	QVector<RtVector*>& vectors() { return vectors_; }
 	
 public slots:
-	void newVector(const QString& name, uint sz = 0);
-	void newVector(const QStringList& names, uint sz = 0);
+    void newVector(const QString& name, uint sz = 32);
+    void newVector(const QStringList& names, uint sz = 32);
 	void newDataFolder(const QString& name);
 	bool isMatrix() const;
 	bool setSourceBuffer(RtDataBuffer* b = 0);

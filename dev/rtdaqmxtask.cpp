@@ -205,11 +205,7 @@ bool RtDAQmxTask::doReadWrite_()
     QString msg;
     int nch = channels_.size();
     int32 ns = nch;
-
-    if (daqType_==AnalogOutput)
-        for(int i=0; i<nch; i++) analogBuffer_[i] = channels_[i]->value();
-    else if (daqType_==DigitalOutput)
-        for(int i=0; i<nch; i++) digitalBuffer_[i] = channels_[i]->value();
+    quint32 counts_;
 
     switch (daqType_)
     {
@@ -219,8 +215,10 @@ bool RtDAQmxTask::doReadWrite_()
             pushError("DAQmxReadAnalogF64 failed",msg);
             return false;
         }
+        for(int i=0; i<nch; i++) channels_[i]->push(analogBuffer_[i]);
         break;
     case AnalogOutput:
+        for(int i=0; i<nch; i++) analogBuffer_[i] = channels_[i]->value();
         if (daqmx::writeAnalog((TaskHandle)handle_,timeout_,analogBuffer_.data(),ns,msg)!=0)
         {
             pushError("DAQmxWriteAnalogF64 failed",msg);
@@ -233,8 +231,10 @@ bool RtDAQmxTask::doReadWrite_()
             pushError("DAQmxReadDigitalU32 failed",msg);
             return false;
         }
+        for(int i=0; i<nch; i++) channels_[i]->push(digitalBuffer_[i]);
         break;
     case DigitalOutput:
+        for(int i=0; i<nch; i++) digitalBuffer_[i] = channels_[i]->value();
         if (daqmx::writeDigital((TaskHandle)handle_,timeout_,(uInt32*)digitalBuffer_.data(),ns,msg)!=0)
         {
             pushError("DAQmxWriteAnalogF64 failed",msg);
@@ -242,11 +242,13 @@ bool RtDAQmxTask::doReadWrite_()
         }
         break;
     case CountEdges:
+        counts_ = digitalBuffer_[0]; // always only 1 counter channel
         if (daqmx::readCounter((TaskHandle)handle_,timeout_,(uInt32*)digitalBuffer_.data(),ns,msg)!=0)
         {
             pushError("DAQmxReadCounterU32 failed",msg);
             return false;
         }
+        for(int i=0; i<nch; i++) channels_[i]->push(digitalBuffer_[i] - counts_);
         break;
     }
     if (ns!=1)
@@ -254,11 +256,6 @@ bool RtDAQmxTask::doReadWrite_()
         pushError("DAQmx read/write operations failed", "no samples");
         return false;
     }
-
-    if (daqType_==AnalogInput)
-        for(int i=0; i<nch; i++) channels_[i]->push(analogBuffer_[i]);
-    else if (daqType_==DigitalInput || daqType_==CountEdges)
-        for(int i=0; i<nch; i++) channels_[i]->push(digitalBuffer_[i]);
 
     return true;
 }
@@ -277,8 +274,12 @@ bool RtDAQmxTask::throwIfOnline()
 // arming
 bool RtDAQmxTask::arm_()
 {
-    if (throwIfOffline()) return armed_ = false;
-    else return RtJob::arm_();
+    if (throwIfOffline()) return armed_ = false; 
+    else {
+        digitalBuffer_.fill(0);
+        analogBuffer_.fill(0.);
+        return RtJob::arm_();
+    }
 }
 void RtDAQmxTask::read()
 {

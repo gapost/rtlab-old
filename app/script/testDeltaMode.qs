@@ -1,4 +1,5 @@
 gpib = dev.newInterface("gpib","GPIB");
+gpib.timeout=1000;
 gpib.open();
 src = dev.newDevice("src",gpib,12,"K6220");
 with(src) {
