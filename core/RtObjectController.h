@@ -44,21 +44,21 @@
 ** 
 ****************************************************************************/
 
-#ifndef OBJECTCONTROLLER_H
-#define OBJECTCONTROLLER_H
+#ifndef RTOBJECTCONTROLLER_H
+#define RTOBJECTCONTROLLER_H
 
 #include <QWidget>
 
-class  ObjectControllerPrivate;
+class  RtObjectControllerPrivate;
 class QtProperty;
 
 
-class ObjectController : public QWidget
+class RtObjectController : public QWidget
 {
     Q_OBJECT
 public:
-    ObjectController(QWidget *parent = 0);
-    ~ObjectController();
+    RtObjectController(QWidget *parent = 0);
+    ~RtObjectController();
 
     void setObject(QObject *object);
     QObject *object() const;
@@ -67,9 +67,9 @@ public: // slots:
 	Q_SLOT void updateProperties();
 
 private:
-    ObjectControllerPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(ObjectController)
-    Q_DISABLE_COPY(ObjectController)
+    RtObjectControllerPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(RtObjectController)
+    Q_DISABLE_COPY(RtObjectController)
 
 	//Q_PRIVATE_SLOT(d_func(), void slotValueChanged(QtProperty *, const QVariant &))
 	Q_SLOT void valueChanged(QtProperty*, const QVariant&);

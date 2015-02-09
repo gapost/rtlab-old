@@ -1,9 +1,11 @@
 #include "RtPlotWidget.h"
 #include "RtVector.h"
+#include "RtTimeValue.h"
+
 #include <QCloseEvent>
 #include <QCoreApplication>
 #include <QSet>
-#include <QDateTime>
+
 
 #include <qwt_plot_curve.h>
 #include <qwt_series_data.h>
@@ -94,8 +96,7 @@ public:
     }
     virtual QwtText label(double v) const
     {
-        uint s = (uint)v;
-        return QDateTime::fromTime_t(s).time().toString("hh:mm:ss");
+        return QDateTime(RtTimeValue(v)).toString("hh:mm:ss");
     }
 };
 

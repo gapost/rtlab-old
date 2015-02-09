@@ -9,24 +9,36 @@
 #include <QMetaObject>
 #include <QMetaMethod>
 
-#include "objectcontroller.h"
+#include "RtObjectController.h"
 
-#include "RtObject.h"
-#include "RtObjectInspector.h"
+#include "RtObjectBrowser.h"
 #include "RtRoot.h"
 
-RtObjectInspector::RtObjectInspector(QWidget* p) : QWidget(p)
+RtObjectBrowser::RtObjectBrowser(QWidget* p) : QWidget(p)
 {
 	treeWidget = new QTreeWidget(this);
-	QVBoxLayout* vlayout = new QVBoxLayout();
-	vlayout->addWidget(treeWidget);
-	setLayout(vlayout);
+    treeWidget->setColumnCount(2);
+    QStringList headers;
+    headers << "Object" << "Class";
+    treeWidget->setHeaderLabels(headers);
+    treeWidget->setAlternatingRowColors(true);
 
-	treeWidget->setColumnCount(2);
-	QStringList headers;
-	headers << "Object" << "Class";
-	treeWidget->setHeaderLabels(headers);
-	treeWidget->setAlternatingRowColors(true);
+    currentObject = new QLineEdit(this);
+
+    tabWidget = new QTabWidget(this);
+    propertyBrowser = new RtPropertyBrowser();
+    tabWidget->addTab(propertyBrowser, "Properties");
+    functionBrowser = new RtFunctionBrowser();
+    tabWidget->addTab(functionBrowser, "Functions");
+
+    QVBoxLayout* vlayout = new QVBoxLayout();
+    vlayout->addWidget(currentObject);
+    vlayout->addWidget(tabWidget);
+
+    QHBoxLayout* hlayout = new QHBoxLayout();
+    hlayout->addWidget(treeWidget);
+    hlayout->addLayout(vlayout);
+    setLayout(hlayout);
 
 	foreach(QObject* o, RtObject::root()->children())
 	{
@@ -40,18 +52,32 @@ RtObjectInspector::RtObjectInspector(QWidget* p) : QWidget(p)
 	connect(this, SIGNAL(updateItem(QTreeWidgetItem* )),
 		this, SLOT(slotUpdateItem(QTreeWidgetItem* )) , Qt::QueuedConnection);
 
+    connect(this, SIGNAL(currentObjectChanged(RtObject*)),
+        propertyBrowser, SLOT(setRtObject(RtObject*)));
+    connect(this, SIGNAL(currentObjectChanged(RtObject*)),
+        functionBrowser, SLOT(setRtObject(RtObject*)));
+
+    // object creation is queued so that object is fully created
+    connect(RtObject::root(), SIGNAL(objectCreated(RtObject*)),
+        this, SLOT(slotInsertObject(RtObject*))); //, Qt::QueuedConnection);
+    // object deletion should be normal so that all objects have the chance to deref
+    connect(RtObject::root(), SIGNAL(objectDeleted(RtObject*)),
+        this, SLOT(slotRemoveObject(RtObject*))); //, Qt::QueuedConnection);
+
+    //connect(currentObject,SIGNAL(editingFinished()),this,SLOT(setByUser()));
+
 }
 
-RtObjectInspector::~RtObjectInspector(void)
+RtObjectBrowser::~RtObjectBrowser(void)
 {
 }
 
-void RtObjectInspector::customEvent (QEvent *e)
+void RtObjectBrowser::customEvent (QEvent *e)
 {
 	QWidget::customEvent(e);
 }
 
-void RtObjectInspector::change(RtObject* obj, bool create)
+void RtObjectBrowser::change(RtObject* obj, bool create)
 {
 	if (create)
 	{
@@ -65,7 +91,7 @@ void RtObjectInspector::change(RtObject* obj, bool create)
 	else removeObject(obj);
 }
 
-void RtObjectInspector::insertObject(QTreeWidgetItem* parent, RtObject* obj, bool recursive)
+void RtObjectBrowser::insertObject(QTreeWidgetItem* parent, RtObject* obj, bool recursive)
 {
 	QStringList nodedata;
 	nodedata <<  obj->objectName() << obj->metaObject()->className();
@@ -86,7 +112,7 @@ void RtObjectInspector::insertObject(QTreeWidgetItem* parent, RtObject* obj, boo
 
 }
 
-void RtObjectInspector::removeObject(RtObject* obj, bool recursive)
+void RtObjectBrowser::removeObject(RtObject* obj, bool recursive)
 {
 		QTreeWidgetItem* item = objects2items.value(obj);
 		if (item) 
@@ -107,25 +133,26 @@ void RtObjectInspector::removeObject(RtObject* obj, bool recursive)
 		}
 }
 
-void RtObjectInspector::slotInsertObject(RtObject* obj)
+void RtObjectBrowser::slotInsertObject(RtObject* obj)
 {
 	change(obj,true);
 }
 
-void RtObjectInspector::slotRemoveObject(RtObject* obj)
+void RtObjectBrowser::slotRemoveObject(RtObject* obj)
 {
 	change(obj,false);
 }
 
-
-
-void RtObjectInspector::slotCurrentItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous)
+void RtObjectBrowser::slotCurrentItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous)
 {
 	RtObject* obj = items2objects.value(current);
-	if (obj) emit currentObjectChanged(obj);
+    if (obj) {
+        currentObject->setText(obj->fullName());
+        emit currentObjectChanged(obj);
+    }
 }
 
-void RtObjectInspector::slotUpdateItem( QTreeWidgetItem * i)
+void RtObjectBrowser::slotUpdateItem( QTreeWidgetItem * i)
 {
 	RtObject* obj = items2objects.value(i);
 	if (obj)
@@ -135,17 +162,12 @@ void RtObjectInspector::slotUpdateItem( QTreeWidgetItem * i)
 //***********************************************************************//
 RtPropertyBrowser::RtPropertyBrowser(QWidget *parent) : QWidget(parent)
 {
-	currentObject = new QLineEdit(this);
-	objectController = new ObjectController(this);
+    objectController = new RtObjectController(this);
 
 	QVBoxLayout* vlayout = new QVBoxLayout();
-	vlayout->addWidget(currentObject);
 	vlayout->addWidget(objectController);
 
 	setLayout(vlayout);
-
-	connect(currentObject,SIGNAL(editingFinished()),this,SLOT(setByUser()));
-
 }
     
 RtPropertyBrowser::~RtPropertyBrowser()
@@ -164,8 +186,6 @@ void RtPropertyBrowser::setRtObject(RtObject* obj)
 	objectController->setObject(obj);
 	if (obj)
 	{
-		currentObject->setText(obj->fullName());
-
 		connect(obj,SIGNAL(propertiesChanged()),objectController,SLOT(updateProperties()));
 	}
 }
@@ -186,30 +206,18 @@ void RtPropertyBrowser::customEvent (QEvent *e)
 	else QWidget::customEvent(e);
 }
 
-void RtPropertyBrowser::setByUser()
-{
-	QString name = currentObject->text();
-	RtObject* obj = RtObject::findByName(name);
-	//if (obj) 
-		setRtObject(obj);
-}
-
 //***********************************************************************//
 RtFunctionBrowser::RtFunctionBrowser(QWidget *parent) : QWidget(parent)
 {
-	currentObject = new QLineEdit(this);
 	methodsTree = new QTreeWidget(this);
 	methodsTree->setColumnCount(1);
 	methodsTree->setAlternatingRowColors(true);
 	methodsTree->setHeaderHidden(true);
 
 	QVBoxLayout* vlayout = new QVBoxLayout();
-	vlayout->addWidget(currentObject);
 	vlayout->addWidget(methodsTree);
 
 	setLayout(vlayout);
-
-	connect(currentObject,SIGNAL(editingFinished()),this,SLOT(setByUser()));
 
 }
 
@@ -217,13 +225,11 @@ void RtFunctionBrowser::setRtObject(RtObject* obj)
 {
 	if (obj)
 	{
-		currentObject->setText(obj->fullName());
 		populateMethods(obj->metaObject());
 	}
 	else
 	{
 		methodsTree->clear();
-		//currentObject->setText("");
 	}
 }
 
@@ -283,72 +289,5 @@ void RtFunctionBrowser::customEvent (QEvent *e)
 	else QWidget::customEvent(e);
 }
 
-void RtFunctionBrowser::setByUser()
-{
-	QString name = currentObject->text();
-	RtObject* obj = RtObject::findByName(name);
-	setRtObject(obj);
-}
 
-//*******************************************************************//
 
-RtErrorLog::RtErrorLog(QWidget* p) : QWidget(p)
-{
-	tableWidget = new QTableWidget(this);
-
-	tableWidget->setColumnCount(4);
-	QStringList headers;
-	headers << "Time" << "Object" << "Type" << "Description";
-	tableWidget->setHorizontalHeaderLabels(headers);
-
-	tableWidget->setShowGrid(false);
-	tableWidget->setAlternatingRowColors(true);
-	tableWidget->verticalHeader()->hide();
-	tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	tableWidget->setWordWrap(false);
-
-	clearButton = new QPushButton("Clear",this);
-	connect(clearButton,SIGNAL(clicked()),this,SLOT(clear()));
-
-	QVBoxLayout* vlayout = new QVBoxLayout();
-	QHBoxLayout* hlayout = new QHBoxLayout();
-	hlayout->addWidget(clearButton);
-	hlayout->addStretch();
-	vlayout->addLayout(hlayout);
-	vlayout->addWidget(tableWidget);
-
-	setLayout(vlayout);
-
-	RtObject::root()->addErrorSink(this);
-}
-
-RtErrorLog::~RtErrorLog(void)
-{
-	RtObject::root()->removeErrorSink(this);
-}
-
-void RtErrorLog::customEvent (QEvent *e)
-{
-	if (e->type()==RtEvent::ObjectError)
-	{
-		RtErrorEvent* rte = (RtErrorEvent*)e;
-		RtObject* obj = (RtObject*)(rte->qObject());
-		const RtObject::ErrorEntry& e = rte->errorEntry();
-
-		tableWidget->insertRow(0);
-		tableWidget->setItem(0,0,new QTableWidgetItem(e.t.toString("hh:mm:ss.zzz")));
-		tableWidget->setItem(0,1,new QTableWidgetItem(e.objectName));
-		tableWidget->setItem(0,2,new QTableWidgetItem(e.type));
-		tableWidget->setItem(0,3,new QTableWidgetItem(e.descr));
-		tableWidget->resizeRowToContents(0);
-	}
-	else QWidget::customEvent(e);
-}
-
-void RtErrorLog::clear()
-{
-	tableWidget->clear();
-	QStringList headers;
-	headers << "Time" << "Object" << "Type" << "Description";
-	tableWidget->setHorizontalHeaderLabels(headers);
-}

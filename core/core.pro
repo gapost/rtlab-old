@@ -34,7 +34,6 @@ HEADERS += \
     RtBinaryChannelOp.h \
     RtMainWindow.h \
     RtEnumHelper.h \
-    RtObjectInspector.h \
     linefit.h \
     RtPlotWidget.h \
     RtInterpChannel.h \
@@ -44,9 +43,11 @@ HEADERS += \
     RtSession.h \
     RtScriptJob.h \
     RtDelegates.h \
-    objectcontroller.h \
     os_utils_linux.h \
-    os_utils_win32.h
+    os_utils_win32.h \
+    RtErrorLog.h \
+    RtObjectBrowser.h \
+    RtObjectController.h
 
 SOURCES += \
     RtObject.cpp \
@@ -62,15 +63,16 @@ SOURCES += \
     RtFigure.cpp \
     RtBinaryChannelOp.cpp \
     RtMainWindow.cpp \
-    RtObjectInspector.cpp \
     RtInterpChannel.cpp \
     RtTableWidget.cpp \
     RtChannelWidget.cpp \
     RtSession.cpp \
     RtScriptJob.cpp \
     RtDelegates.cpp \
-    objectcontroller.cpp \
-    RtRootSerialize.cpp
+    RtRootSerialize.cpp \
+    RtErrorLog.cpp \
+    RtObjectBrowser.cpp \
+    RtObjectController.cpp
 
 greaterThan(QT_MAJOR_VERSION, 4): SOURCES += rtplotwidgetqwt6.cpp
 else: SOURCES += rtplotwidgetqwt5.cpp

@@ -1,7 +1,8 @@
 #include "RtMainWindow.h"
-#include "RtObjectInspector.h"
+#include "RtErrorLog.h"
 #include "RtChannelWidget.h"
 #include "RtRoot.h"
+#include "RtObjectBrowser.h"
 
 #include <QMdiArea>
 #include <QMdiSubWindow>
@@ -17,28 +18,15 @@ RtMainWindow::~RtMainWindow(void)
 
 void RtMainWindow::createDockers()
 {
-    QDockWidget *dock = new QDockWidget("Object Inspector", this);
-    dock->setObjectName("objectInspectorDocker");
-    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-	objectInspector = new RtObjectInspector(dock);   
-    dock->setWidget(objectInspector);
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
-    toggleDockersActions << dock->toggleViewAction();
+    QDockWidget *dock;
 
-    dock = new QDockWidget("Property Browser", this);
-    dock->setObjectName("propertyBrowserDocker");
+    dock = new QDockWidget("Object Browser", this);
+    dock->setObjectName("objectBrowserDocker");
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-	propertyBrowser = new RtPropertyBrowser(dock);   
-    dock->setWidget(propertyBrowser);
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
-    toggleDockersActions << dock->toggleViewAction();
-
-    dock = new QDockWidget("Function Browser", this);
-    dock->setObjectName("functionBrowserDocker");
-    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-	functionBrowser = new RtFunctionBrowser(dock);   
-    dock->setWidget(functionBrowser);
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
+    objectBrowser = new RtObjectBrowser(dock);
+    dock->setWidget(objectBrowser);
+    dock->setFloating(true);
+    dock->hide();
     toggleDockersActions << dock->toggleViewAction();
 
 	dock = new QDockWidget("Channel Viewer", this);
@@ -54,21 +42,9 @@ void RtMainWindow::createDockers()
     dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
 	errorLog = new RtErrorLog(dock);   
     dock->setWidget(errorLog);
-    addDockWidget(Qt::RightDockWidgetArea, dock);
+    dock->setFloating(true);
 	dock->hide();
     toggleDockersActions << dock->toggleViewAction();
-
-	connect(objectInspector, SIGNAL(currentObjectChanged(RtObject*)),
-		propertyBrowser, SLOT(setRtObject(RtObject*)));
-	connect(objectInspector, SIGNAL(currentObjectChanged(RtObject*)),
-		functionBrowser, SLOT(setRtObject(RtObject*)));
-
-	// object creation is queued so that object is fully created
-	connect(RtObject::root(), SIGNAL(objectCreated(RtObject*)),
-		objectInspector, SLOT(slotInsertObject(RtObject*))); //, Qt::QueuedConnection);
-	// object deletion should be normal so that all objects have the chance to deref
-	connect(RtObject::root(), SIGNAL(objectDeleted(RtObject*)),
-		objectInspector, SLOT(slotRemoveObject(RtObject*))); //, Qt::QueuedConnection);
 }
 
 void RtMainWindow::addFigureWindow(QWidget *child, const QString &name)

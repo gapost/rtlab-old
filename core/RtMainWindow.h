@@ -4,11 +4,10 @@
 #include <QMainWindow>
 
 class QMdiArea;
-class RtObjectInspector;
-class RtPropertyBrowser;
-class RtFunctionBrowser;
+
 class RtChannelViewer;
 class RtErrorLog;
+class RtObjectBrowser;
 class QAction;
 
 class RtMainWindow : public QMainWindow
@@ -23,12 +22,11 @@ public:
 	RtChannelViewer* channelViewer() const { return channelViewer_; }
 
 protected:
-	RtObjectInspector* objectInspector;
-	RtPropertyBrowser* propertyBrowser;
-	RtFunctionBrowser* functionBrowser;
+    RtObjectBrowser* objectBrowser;
 	RtErrorLog* errorLog;
 	RtChannelViewer* channelViewer_;
-    QMdiArea *mdiArea;
+
+        QMdiArea *mdiArea;
 
 	QList<QAction*> toggleDockersActions;
 

@@ -48,20 +48,51 @@
 #include <QMetaProperty>
 #include <QVBoxLayout>
 #include <QScrollArea>
-#include "objectcontroller.h"
+#include "RtObjectController.h"
 #include "qtvariantproperty.h"
 #include "qtgroupboxpropertybrowser.h"
 #include "qttreepropertybrowser.h"
 #include "qtpropertybrowser.h"
 
-/*class VariantPropertyManager : public QtVariantPropertyManager
-{
-};*/
+#include "RtTypes.h"
 
-class ObjectControllerPrivate
+int isRtType(const QVariant& v)
 {
-    ObjectController *q_ptr;
-    Q_DECLARE_PUBLIC(ObjectController)
+    int ret = 0;
+    if (v.canConvert<RtIntVector>()) ret = 1;
+    else if (v.canConvert<RtUintVector>()) ret = 2;
+    else if (v.canConvert<RtDoubleVector>()) ret = 3;
+    return ret;
+}
+
+template <class T>
+QString rtTypeToString(const QVariant& var)
+{
+    T v = var.value<T>();
+    QString str('[');
+    for(int i=0; i<v.size(); i++)
+    {
+        str += QString::number(v[i]);
+        if (i<v.size()-1) str += ',';
+    }
+    str += ']';
+    return str;
+}
+QString rtTypeToString(const QVariant& var, int type)
+{
+    switch (type)
+    {
+    case 1: return rtTypeToString<RtIntVector>(var);
+    case 2: return rtTypeToString<RtUintVector>(var);
+    case 3: return rtTypeToString<RtDoubleVector>(var);
+    default: return QString();
+    }
+}
+
+class RtObjectControllerPrivate
+{
+    RtObjectController *q_ptr;
+    Q_DECLARE_PUBLIC(RtObjectController)
 public:
 
     void addClassProperties(const QMetaObject *metaObject);
@@ -92,7 +123,7 @@ public:
     QtVariantPropertyManager *m_readOnlyManager;
 };
 
-int ObjectControllerPrivate::enumToInt(const QMetaEnum &metaEnum, int enumValue) const
+int RtObjectControllerPrivate::enumToInt(const QMetaEnum &metaEnum, int enumValue) const
 {
     QMap<int, int> valueMap; // dont show multiple enum values which have the same values
     int pos = 0;
@@ -107,7 +138,7 @@ int ObjectControllerPrivate::enumToInt(const QMetaEnum &metaEnum, int enumValue)
     return -1;
 }
 
-int ObjectControllerPrivate::intToEnum(const QMetaEnum &metaEnum, int intValue) const
+int RtObjectControllerPrivate::intToEnum(const QMetaEnum &metaEnum, int intValue) const
 {
     QMap<int, bool> valueMap; // dont show multiple enum values which have the same values
     QList<int> values;
@@ -123,7 +154,7 @@ int ObjectControllerPrivate::intToEnum(const QMetaEnum &metaEnum, int intValue) 
     return values.at(intValue);
 }
 
-bool ObjectControllerPrivate::isSubValue(int value, int subValue) const
+bool RtObjectControllerPrivate::isSubValue(int value, int subValue) const
 {
     if (value == subValue)
         return true;
@@ -139,7 +170,7 @@ bool ObjectControllerPrivate::isSubValue(int value, int subValue) const
     return true;
 }
 
-bool ObjectControllerPrivate::isPowerOf2(int value) const
+bool RtObjectControllerPrivate::isPowerOf2(int value) const
 {
     while (value) {
         if (value & 1) {
@@ -150,7 +181,7 @@ bool ObjectControllerPrivate::isPowerOf2(int value) const
     return false;
 }
 
-int ObjectControllerPrivate::flagToInt(const QMetaEnum &metaEnum, int flagValue) const
+int RtObjectControllerPrivate::flagToInt(const QMetaEnum &metaEnum, int flagValue) const
 {
     if (!flagValue)
         return 0;
@@ -168,7 +199,7 @@ int ObjectControllerPrivate::flagToInt(const QMetaEnum &metaEnum, int flagValue)
     return intValue;
 }
 
-int ObjectControllerPrivate::intToFlag(const QMetaEnum &metaEnum, int intValue) const
+int RtObjectControllerPrivate::intToFlag(const QMetaEnum &metaEnum, int intValue) const
 {
     QMap<int, bool> valueMap; // dont show multiple enum values which have the same values
     QList<int> values;
@@ -193,7 +224,7 @@ int ObjectControllerPrivate::intToFlag(const QMetaEnum &metaEnum, int intValue) 
     return flagValue;
 }
 
-void ObjectControllerPrivate::updateClassProperties(const QMetaObject *metaObject, bool recursive)
+void RtObjectControllerPrivate::updateClassProperties(const QMetaObject *metaObject, bool recursive)
 {
     if (!metaObject)
         return;
@@ -226,14 +257,14 @@ void ObjectControllerPrivate::updateClassProperties(const QMetaObject *metaObjec
     }
 }
 
-struct Var2Int
+/*struct Var2Int
 {
 	int v;
 };
 
 Q_DECLARE_METATYPE(Var2Int)
-
-void ObjectControllerPrivate::addClassProperties(const QMetaObject *metaObject)
+*/
+void RtObjectControllerPrivate::addClassProperties(const QMetaObject *metaObject)
 {
     //if (!metaObject)
 	if (metaObject->superClass()==0) // stop at QObject
@@ -252,6 +283,8 @@ void ObjectControllerPrivate::addClassProperties(const QMetaObject *metaObject)
             QMetaProperty metaProperty = metaObject->property(idx);
             int type = metaProperty.userType();
             QtVariantProperty *subProperty = 0;
+            QVariant var;
+            int rtType;
             if (!metaProperty.isReadable()) {
                 subProperty = m_readOnlyManager->addProperty(QVariant::String, QLatin1String(metaProperty.name()));
                 subProperty->setValue(QLatin1String("< Non Readable >"));
@@ -304,7 +337,15 @@ void ObjectControllerPrivate::addClassProperties(const QMetaObject *metaObject)
                     subProperty = m_manager->addProperty(type, QLatin1String(metaProperty.name()));
                 subProperty->setValue(metaProperty.read(m_object));
 				subProperty->setAttribute("minimum",QVariant((int)0));
-            } else {
+           /* } else if (rtType = isRtType(var = metaProperty.read(m_object))) {
+                if (!metaProperty.isWritable())
+                    subProperty = m_readOnlyManager->addProperty(type, QLatin1String(metaProperty.name()) + QLatin1String(" (Non Writable)"));
+                if (!metaProperty.isDesignable())
+                    subProperty = m_readOnlyManager->addProperty(type, QLatin1String(metaProperty.name()) + QLatin1String(" (Non Designable)"));
+                else
+                    subProperty = m_manager->addProperty(type, QLatin1String(metaProperty.name()));
+                subProperty->setValue(rtTypeToString(var,rtType));*/
+            } else { // could not convert the type
                 subProperty = m_readOnlyManager->addProperty(QVariant::String, QLatin1String(metaProperty.name()));
                 subProperty->setValue(QLatin1String("< Unknown Type >"));
                 subProperty->setEnabled(false);
@@ -321,17 +362,17 @@ void ObjectControllerPrivate::addClassProperties(const QMetaObject *metaObject)
     m_browser->addProperty(classProperty);
 }
 
-void ObjectControllerPrivate::saveExpandedState()
+void RtObjectControllerPrivate::saveExpandedState()
 {
 
 }
 
-void ObjectControllerPrivate::restoreExpandedState()
+void RtObjectControllerPrivate::restoreExpandedState()
 {
 
 }
 
-void ObjectControllerPrivate::slotValueChanged(QtProperty *property, const QVariant &value)
+void RtObjectControllerPrivate::slotValueChanged(QtProperty *property, const QVariant &value)
 {
     if (!m_propertyToIndex.contains(property))
         return;
@@ -354,10 +395,10 @@ void ObjectControllerPrivate::slotValueChanged(QtProperty *property, const QVari
 
 ///////////////////
 
-ObjectController::ObjectController(QWidget *parent)
+RtObjectController::RtObjectController(QWidget *parent)
     : QWidget(parent)
 {
-    d_ptr = new ObjectControllerPrivate;
+    d_ptr = new RtObjectControllerPrivate;
     d_ptr->q_ptr = this;
 
     d_ptr->m_object = 0;
@@ -388,18 +429,18 @@ ObjectController::ObjectController(QWidget *parent)
 //                this, SLOT(slotValueChanged(QtProperty *, const QVariant &)));
 }
 
-void ObjectController::valueChanged(QtProperty* p, const QVariant& v)
+void RtObjectController::valueChanged(QtProperty* p, const QVariant& v)
 {
 	d_ptr->slotValueChanged(p,v);
 }
 
 
-ObjectController::~ObjectController()
+RtObjectController::~RtObjectController()
 {
     delete d_ptr;
 }
 
-void ObjectController::setObject(QObject *object)
+void RtObjectController::setObject(QObject *object)
 {
     if (d_ptr->m_object == object)
         return;
@@ -423,12 +464,12 @@ void ObjectController::setObject(QObject *object)
     d_ptr->restoreExpandedState();
 }
 
-QObject *ObjectController::object() const
+QObject *RtObjectController::object() const
 {
     return d_ptr->m_object;
 }
 
-void ObjectController::updateProperties()
+void RtObjectController::updateProperties()
 {
 	d_ptr->updateClassProperties(object()->metaObject(), true);
 }
