@@ -10,6 +10,7 @@
 #include <QCloseEvent>
 #include <QtUiTools>
 #include <QFile>
+#include <QFileInfo>
 #include <QSet>
 
 #include <qwt_text.h>
@@ -80,6 +81,9 @@ void RtFigureFolder::newWidgetPane(const QString& name, const QString& uifile)
 	else 
 	{
 		QUiLoader loader;
+        // loader working dir = ui file dir
+        QFileInfo fi(file);
+        loader.setWorkingDirectory(fi.absoluteDir());
 		w = loader.load(&file);
 		file.close();
 		if (!w)

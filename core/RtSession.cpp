@@ -58,7 +58,7 @@ RtSession::RtSession(const QString& name, RtObject* parent) : RtObject(name,"ses
 		{
             QScriptValue v = engine_->newQObject(rto,
 				QScriptEngine::QtOwnership,
-				QScriptEngine::ExcludeDeleteLater
+                QScriptEngine::ExcludeDeleteLater | QScriptEngine::AutoCreateDynamicProperties
 				);
 
             engine_->globalObject().setProperty(
@@ -328,7 +328,7 @@ QString RtSession::system(const QString &comm)
     QProcess p;
     //comm.split(QChar(' '),QString::SkipEmptyParts);
     p.start(comm);
-    bool ret = p.waitForFinished(1000);
+    /*bool ret = */p.waitForFinished(1000);
     QByteArray pout = p.readAllStandardOutput();
     QByteArray perr = p.readAllStandardError();
     QByteArray pall = p.readAll();

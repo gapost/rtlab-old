@@ -86,6 +86,11 @@ OTHER_FILES += \
 
 DISTFILES += \
     script/testTcpip.qs \
-    script/testDeltaMode.qs
+    script/testDeltaMode.qs \
+    script/testMainJSobj.qs \
+    script/forms/ir2_logo150px_Aug2012.png
+
+FORMS += \
+    script/forms/form.ui
 
 

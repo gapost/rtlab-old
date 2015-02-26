@@ -75,9 +75,9 @@ void RtObject::createScriptObject(RtObject* obj) const
 	if (!engine()) return;
 
 	obj->registerTypes(engine());
-	QScriptValue v = engine()->newQObject(obj,
+    QScriptValue v = engine()->newQObject(obj,
 		QScriptEngine::QtOwnership,
-		QScriptEngine::ExcludeDeleteLater
+        QScriptEngine::ExcludeDeleteLater | QScriptEngine::AutoCreateDynamicProperties
 		);
 	thisObject().setProperty(
 		obj->objectName(), 
@@ -299,6 +299,23 @@ QString RtObject::listProperties() const
 	QString S;
 	int level = 0;
 	listPropertiesHelper(this, S, metaObject(), level);
+
+    // add dynamic properties
+    QList<QByteArray> dynProps = dynamicPropertyNames();
+    if (!dynProps.isEmpty())
+    {
+        S += "Dynamic Properties\n";
+        foreach(const QByteArray& ba, dynProps)
+        {
+            S += "  ";
+            S += ba.constData();
+            S += " : ";
+            QVariant v = property(ba.constData());
+            S += v.toString();
+            S += '\n';
+        }
+    }
+
 	return S;
 }
 
@@ -358,7 +375,7 @@ QScriptValue toScriptValue(QScriptEngine *eng, const RtObjectStar& obj)
 {
     return eng->newQObject(obj,
                            QScriptEngine::AutoOwnership,
-                           QScriptEngine::ExcludeDeleteLater);
+                           QScriptEngine::ExcludeDeleteLater | QScriptEngine::AutoCreateDynamicProperties);
 }
 
 void fromScriptValue(const QScriptValue &value, RtObjectStar& obj)

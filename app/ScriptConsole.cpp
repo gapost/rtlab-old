@@ -83,42 +83,30 @@ void ScriptConsole::keyPressEvent (QKeyEvent * e)
 
 QStringList ScriptConsole::introspection(const QString& lookup)
 {
-    if (lookup.isEmpty()) return QStringList();
-
-    // try to find the object with name lookup
-    //RtObject* obj = RtObject::findByName(lookup);
-
     // list of found tokens
     QStringList properties;
+
+    if (lookup.isEmpty()) return properties;
+
     QScriptEngine* eng = session->getEngine();
-    QScriptValue scriptObj = eng->globalObject();
-    bool objFound = false;
+    QScriptValue scriptObj = eng->evaluate(lookup);
 
-    QStringList tokens = lookup.split('.');
-    do
+    if (scriptObj.isUndefined()) return properties;
+
+    // if a QObject add the named children
+    if (scriptObj.isQObject())
     {
-        objFound = false;
-
-        QString str = tokens.front();
-        tokens.pop_front();
-
-        QScriptValueIterator it(scriptObj);
-        while (it.hasNext())
+        QObject* obj = scriptObj.toQObject();
+        foreach(QObject* ch, obj->children())
         {
-            it.next();
-            QString valueName = it.name();
-            if (valueName==str)
-            {
-                scriptObj = it.value();
-                objFound = true;
-                break;
-            }
+            QString name = ch->objectName();
+            if (!name.isEmpty())
+                properties << name;
         }
+
     }
-    while (objFound && !tokens.isEmpty());
 
-
-    if (objFound)
+    // add the script properties
     {
         QScriptValueIterator it(scriptObj);
         while (it.hasNext()) {
