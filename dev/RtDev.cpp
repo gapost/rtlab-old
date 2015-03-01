@@ -13,6 +13,7 @@
 #include "rtserialinterface.h"
 
 
+
 RtAcquisition::RtAcquisition(const QString& name, RtObject* parent) :
 RtObject(name,"Acquisition devices folder",parent)
 {

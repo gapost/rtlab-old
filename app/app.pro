@@ -27,6 +27,8 @@ HEADERS  += \
     ScriptEditor.h \
     ScriptConsole.h
 
+include(../gitversion.pri)
+
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lRtCore
@@ -88,7 +90,8 @@ DISTFILES += \
     script/testDeltaMode.qs \
     script/testMainJSobj.qs \
     script/forms/ir2_logo150px_Aug2012.png \
-    script/testModbusAxis.qs
+    script/testModbusAxis.qs \
+    ../gitversion.pri
 
 FORMS += \
     script/forms/form.ui

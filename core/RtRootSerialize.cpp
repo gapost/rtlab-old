@@ -285,6 +285,17 @@ void writeProperties(H5Object* h5obj, const RtObject* m_object, const QMetaObjec
 			}
 		}
 	}
+
+    // write the object's dynamic properties
+    if (metaObject==m_object->metaObject()) {
+        if (!m_object->dynamicPropertyNames().isEmpty()) {
+            foreach(const QByteArray& ba, m_object->dynamicPropertyNames())
+            {
+                QVariant v = m_object->property(ba.constData());
+                writeStringAttribute(h5obj,ba.constData(),v.toString().toLatin1());
+            }
+        }
+    }
 }
 
 

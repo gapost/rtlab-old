@@ -151,8 +151,20 @@ void MainWindow::windowView()
 
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About RtLab"),
-            tr("RtLab = Real-Time Laboratory using Qt."));
+    QString msg = QString(
+                "<h3>RtLab ver. %1</h3>"
+                "<p>2015 - G. Apostolopoulos "
+                "<a href=\"mailto:gapost@ipta.demokritos.gr\">gapost@ipta.demokritos.gr</a></p>"
+                "<p>This program uses the following Open Source tools:</p>"
+                "<ul>"
+                    "<li>"
+                    "The Qt C++ gui toolkit"
+                    " <a href=\"http://www.trolltech.com/qt/\">www.trolltech.com/qt/</a>"
+                    "</li>"
+                "</ul>"
+               ).arg(GIT_VERSION);
+
+   QMessageBox::about(this, tr("About RtLab"),msg);
 }
 
 void MainWindow::updateMenus()
