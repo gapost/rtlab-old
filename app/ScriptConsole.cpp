@@ -3,12 +3,13 @@
 #include <QMessageBox>
 #include <QScriptEngine>
 #include <QScriptValueIterator>
+#include <QTimer>
 
 #include "ScriptConsole.h"
 
 #include "RtSession.h"
 
-ScriptConsole::ScriptConsole()
+ScriptConsole::ScriptConsole(const QString& startupScript)
 {
 
 	setTabStopWidth ( 40 );
@@ -18,6 +19,13 @@ ScriptConsole::ScriptConsole()
 	connect(session,SIGNAL(stdOut(const QString&)),this,SLOT(stdOut(const QString&)));
 	connect(session,SIGNAL(stdErr(const QString&)),this,SLOT(stdErr(const QString&)));
 	connect(session,SIGNAL(endSession()),this,SLOT(close()));
+
+
+    if (!startupScript.isEmpty())
+    {
+        execCode_ = startupScript;
+        QTimer::singleShot(1000,this,SLOT(deferedEvaluate()));
+    }
 
 }
 

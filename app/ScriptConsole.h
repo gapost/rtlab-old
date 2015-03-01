@@ -7,13 +7,23 @@ class RtSession;
 
 class ScriptConsole : public QConsoleWidget
 {
-	RtSession* session;
-public:
-    ScriptConsole();
+    Q_OBJECT
 
+	RtSession* session;
+    QString execCode_;
+public:
+    ScriptConsole(const QString& startupScript = QString());
+
+public slots:
     void evaluate(const QString& code)
     {
         exec(code);
+    }
+
+protected slots:
+    void deferedEvaluate()
+    {
+        exec(execCode_);
     }
 
 protected:

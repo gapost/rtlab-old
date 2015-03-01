@@ -23,7 +23,7 @@ protected:
 
 private slots:
     void newFile();
-    void newConsole(const QString &startupScript = QString());
+    ScriptConsole* newConsole(const QString &startupScript = QString());
     void open();
     void save();
     void saveAs();
@@ -36,7 +36,7 @@ private slots:
 	void tabbedView();
 	void windowView();
     ScriptEditor *createScriptEditor();
-    ScriptConsole *createScriptConsole();
+    ScriptConsole *createScriptConsole(const QString& startupScript = QString());
     void setActiveSubWindow(QWidget *window);
 
 private:

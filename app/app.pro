@@ -77,7 +77,6 @@ unix:!macx:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../core/libRtCore.a
 
 OTHER_FILES += \
     script/testDaqmx.qs \
-    script/testmodbus.qs \
     script/main.qs \
     script/test6221.qs \
     script/testLoop.qs \
@@ -88,7 +87,8 @@ DISTFILES += \
     script/testTcpip.qs \
     script/testDeltaMode.qs \
     script/testMainJSobj.qs \
-    script/forms/ir2_logo150px_Aug2012.png
+    script/forms/ir2_logo150px_Aug2012.png \
+    script/testModbusAxis.qs
 
 FORMS += \
     script/forms/form.ui

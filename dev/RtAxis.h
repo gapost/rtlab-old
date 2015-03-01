@@ -36,12 +36,16 @@ protected:
 
 	};
 
-	tAxis ax_;
+    //tAxis ax_;
 	AxisMode mode_;
 	int lup_, ldown_, lflag_;
 
-	virtual void rdstate_();
+    virtual int rdstate_(tAxis& ax);
 	virtual void home_();
+
+    // RtJob implementation
+    virtual bool arm_();
+    virtual void run();
 
 public:
 	RtAxis(const QString& name, const QString& desc, RtObject* parent, 
@@ -52,12 +56,12 @@ public:
 
 
 	// getters
-	int pos() { rdstate_(); return ax_.x; }
-	int setPos() { rdstate_(); return ax_.xset; }
+    int pos();
+    int setPos();
 	int limitUp() { return lup_; } 
 	int limitDown() { return ldown_; } 
-	AxisMode mode() { rdstate_(); mode_ = (AxisMode)ax_.command; return mode_; }
-	int limitFlag() { rdstate_(); lflag_ = ax_.outFlags; return lflag_; } 
+    AxisMode mode();
+    int limitFlag();
 
 	// setters
 	void setSetPos(int v);

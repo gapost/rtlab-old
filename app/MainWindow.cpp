@@ -42,6 +42,8 @@ MainWindow::MainWindow(const QString &startupScript)
 	RtObject::root()->setMainWindow(this);
 
     newConsole(startupScript);
+
+
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -62,15 +64,16 @@ void MainWindow::newFile()
     child->show();
 }
 
-void MainWindow::newConsole(const QString& startupScript)
+ScriptConsole *MainWindow::newConsole(const QString& startupScript)
 {
 	static int i = 1;
-    ScriptConsole *child = createScriptConsole();
+    ScriptConsole *child = createScriptConsole(startupScript);
     QString name = QString("Console:%1").arg(i++);
     child->setWindowTitle(name);
     child->setObjectName(name);
     child->show();
-    child->evaluate(startupScript);
+
+    return child;
 }
 
 void MainWindow::open()
@@ -233,9 +236,9 @@ ScriptEditor *MainWindow::createScriptEditor()
     return child;
 }
 
-ScriptConsole *MainWindow::createScriptConsole()
+ScriptConsole *MainWindow::createScriptConsole(const QString &startupScript)
 {
-    ScriptConsole *child = new ScriptConsole;
+    ScriptConsole *child = new ScriptConsole(startupScript);
     mdiArea->addSubWindow(child);
 
     connect(child, SIGNAL(copyAvailable(bool)),
