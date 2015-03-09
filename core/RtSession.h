@@ -63,6 +63,8 @@ public slots:
     double toc() { watch_.stop(); return watch_.sec(); }
     // system call
     QString system(const QString& comm);
+    // display in status bar
+    void status(const QString& msg, int tmo=0);
 
 
 

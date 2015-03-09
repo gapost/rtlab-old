@@ -15,6 +15,7 @@
 #include <QScriptValueIterator>
 #include <QDir>
 #include <QProcess>
+#include <QStatusBar>
 
 
 #define PROC_EVENTS_INTERVAL 250
@@ -333,6 +334,12 @@ QString RtSession::system(const QString &comm)
     QByteArray perr = p.readAllStandardError();
     QByteArray pall = p.readAll();
     return QString(pout);
+}
+
+void RtSession::status(const QString &msg, int tmo)
+{
+    RtMainWindow* wnd = root()->mainWindow();
+    wnd->statusBar()->showMessage(msg,tmo);
 }
 
 
