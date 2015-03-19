@@ -257,9 +257,9 @@ int tcp_socket::connect(const char *aip, int aport)
         return -1;
     }
 
-    if (debug) {
-        printf("Connecting to %s:%d\n", ip, port);
-    }
+    //if (debug) {
+    //    printf("Connecting to %s:%d\n", ip, port);
+    //}
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);

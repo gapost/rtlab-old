@@ -4,6 +4,6 @@ CONFIG += ordered
 
 SUBDIRS += \
     core \
-    test \
     dev \
+    test \
     app

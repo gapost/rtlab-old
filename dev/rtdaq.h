@@ -4,7 +4,9 @@
 #ifdef _WIN32
 #include "rtdaqmxtask.h"
 #elif __linux__
-// TODO: comedi
+    #ifdef USE_COMEDI
+    #include "RtComedi.h"
+    #endif
 #endif
 
 #endif // RTDAQ_H

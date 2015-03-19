@@ -166,5 +166,15 @@ RtObject *RtAcquisition::newDAQmxTask(const QString &name)
 }
 #endif
 
+#ifdef USE_COMEDI
+RtObject *RtAcquisition::newNI6221(const QString &name, const QString& devName)
+{
+    if (!checkName(name)) return 0;
+    Rt6221* obj = new Rt6221(name,this,devName);
+    if (obj) createScriptObject(obj);
+    return obj;
+}
+#endif
+
 
 
