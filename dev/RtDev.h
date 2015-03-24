@@ -22,6 +22,10 @@ public slots:
     RtObject* newDAQmxTask(const QString& name);
 #endif
 
+#ifdef USE_COMEDI
+    RtObject* newNI6221(const QString& name, const QString& devName);
+#endif
+
 };
 
 #endif

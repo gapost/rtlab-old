@@ -29,19 +29,9 @@ bool RtKeithleyDevice::setOnline_(bool on)
 	}
 	else
 	{
-        //write_(defaultConfigString_());
-		//if (inputChannels_.size())
-		{
-            //write("rout:scan:lsel none");
-            //write("*wai");
-		}
-        //write_("samp:coun 1");
-        //write_("rout:scan:lsel none");
-        //write_("rout:clos (@1)");
-        //write_("syst:pres");
-        write_("*rst");
+        write_("*rst"); // reset
         write_("*sre?"); // ask something
-        read_();
+        read_(); // this is to ensure that reset is done before going offline
 		return RtDevice::setOnline_(false);
 	}
 }

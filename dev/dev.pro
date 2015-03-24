@@ -25,7 +25,8 @@ SOURCES += RtDev.cpp \
     rtgpib.cpp \
     rtmodbus.cpp \
     tcp_socket.cpp \
-    rtserialinterface.cpp
+    rtserialinterface.cpp \
+    RtComedi.cpp
 
 HEADERS += RtDev.h \
     RtDevice.h \
@@ -41,7 +42,9 @@ HEADERS += RtDev.h \
     rtmodbus.h \
     rtdaq.h \
     tcp_socket.h \
-    rtserialinterface.h
+    rtserialinterface.h \
+    RtComedi.h
+
 
 
 nidaqmx {
@@ -49,6 +52,12 @@ HEADERS += rtdaqmxtask.h \
            daqmx.h
 SOURCES += rtdaqmxtask.cpp \
            daqmx.cpp
+}
+
+comedi {
+HEADERS += comedi_qt.h \
+    ni6221.h
+SOURCES += ni6221.cpp
 }
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lRtCore
@@ -62,16 +71,5 @@ win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../core/releas
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../core/debug/RtCore.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../core/libRtCore.a
 
-#win32 {
-#    CONFIG(release, debug|release) {
-#        LIBS += -L$$OUT_PWD/../wago_mbt/release/ -lwago_mbt
-#        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/release/wago_mbt.lib
-#    } else {
-#        LIBS += -L$$OUT_PWD/../wago_mbt/debug/ -lwago_mbt
-#        PRE_TARGETDEPS += $$OUT_PWD/../wago_mbt/debug/wago_mbt.lib
-#    }
-#    INCLUDEPATH += $$PWD/../wago_mbt
-#    DEPENDPATH += $$PWD/../wago_mbt
 
-#}
 

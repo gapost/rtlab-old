@@ -1,5 +1,5 @@
 # If there is no version tag in git this one will be used
-VERSION = 0.1.0
+VERSION = 0.1
 
 # Need to discard STDERR so get path to NULL device
 win32 {
@@ -10,7 +10,11 @@ win32 {
 
 # Need to call git with manually specified paths to repository
 # BASE_GIT_COMMAND = c:\Program Files (x86)\Git\bin\git --git-dir $$PWD/../.git --work-tree $$PWD/..
+win32 {
 BASE_GIT_COMMAND = "c:\Program Files (x86)\Git\bin\git"
+} else {
+BASE_GIT_COMMAND = "git"
+}
 
 message(The current dir is $$PWD)
 

@@ -56,7 +56,7 @@ with(figs)
     buff.fig1.plot(data.buff.t,data.buff.y)
 }
 
-figs.newWidgetPane("testWidget","form.ui")
+figs.newWidgetPane("testWidget","forms/form.ui")
 with(figs.testWidget)
 {
     setTitle("Test Widget")

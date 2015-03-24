@@ -65,6 +65,16 @@ public slots:
     QString system(const QString& comm);
     // display in status bar
     void status(const QString& msg, int tmo=0);
+    // check if it is win32 or linux
+    bool ispc()
+    {
+#ifdef __linux__
+        return false;
+#else
+        return true;
+#endif
+    }
+
 
 
 

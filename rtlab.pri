@@ -120,6 +120,11 @@ LIBS += -lgpib
 LIBS += -lmodbus
 INCLUDEPATH += /usr/include/modbus
 
+comedi {
+LIBS += -lcomedi
+DEFINES += USE_COMEDI
+}
+
 }
 
 OTHER_FILES += \
