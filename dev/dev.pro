@@ -25,8 +25,7 @@ SOURCES += RtDev.cpp \
     rtgpib.cpp \
     rtmodbus.cpp \
     tcp_socket.cpp \
-    rtserialinterface.cpp \
-    RtComedi.cpp
+    rtserialinterface.cpp
 
 HEADERS += RtDev.h \
     RtDevice.h \
@@ -42,8 +41,7 @@ HEADERS += RtDev.h \
     rtmodbus.h \
     rtdaq.h \
     tcp_socket.h \
-    rtserialinterface.h \
-    RtComedi.h
+    rtserialinterface.h
 
 
 
@@ -56,8 +54,10 @@ SOURCES += rtdaqmxtask.cpp \
 
 comedi {
 HEADERS += comedi_qt.h \
-    ni6221.h
-SOURCES += ni6221.cpp
+    ni6221.h \
+    RtComedi.h
+SOURCES += ni6221.cpp \
+    RtComedi.cpp
 }
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lRtCore

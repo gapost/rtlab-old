@@ -16,8 +16,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    timers.cpp \
-    comedi_test.cpp
+    timers.cpp
+
+unix: SOURCES += comedi_test.cpp
 
 include ( ../rtlab.pri )
 

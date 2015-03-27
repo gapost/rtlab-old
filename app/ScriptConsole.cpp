@@ -78,7 +78,8 @@ void ScriptConsole::keyPressEvent (QKeyEvent * e)
 	if (e->modifiers() & Qt::ControlModifier)
 	{
 		int k = e->key();
-		if (k==Qt::Key_Cancel || k==Qt::Key_Pause)
+        //if (k==Qt::Key_Cancel || k==Qt::Key_Pause) // did not work on Linux. GA 24/3/2015
+        if (k==Qt::Key_Q) // Ctrl-A aborts
 		{
 			session->abortEvaluation();
 			e->accept();
