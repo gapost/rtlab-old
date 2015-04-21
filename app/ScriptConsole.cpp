@@ -14,11 +14,11 @@ ScriptConsole::ScriptConsole(const QString& startupScript)
 
 	setTabStopWidth ( 40 );
 
-	session = new RtSession("s1");
+    session = new RtSession("s1",this);
 		
 	connect(session,SIGNAL(stdOut(const QString&)),this,SLOT(stdOut(const QString&)));
 	connect(session,SIGNAL(stdErr(const QString&)),this,SLOT(stdErr(const QString&)));
-	connect(session,SIGNAL(endSession()),this,SLOT(close()));
+    connect(session,SIGNAL(endSession()),this,SLOT(close()),Qt::QueuedConnection);
 
 
     if (!startupScript.isEmpty())
@@ -100,9 +100,10 @@ QStringList ScriptConsole::introspection(const QString& lookup)
     QScriptEngine* eng = session->getEngine();
     QScriptValue scriptObj = eng->evaluate(lookup);
 
-    if (scriptObj.isUndefined()) return properties;
+    // if the engine cannot recognize the variable return
+    if (eng->hasUncaughtException()) return properties;
 
-    // if a QObject add the named children
+     // if a QObject add the named children
     if (scriptObj.isQObject())
     {
         QObject* obj = scriptObj.toQObject();

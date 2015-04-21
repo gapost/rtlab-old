@@ -15,7 +15,7 @@ bool RtScriptJob::arm_()
 
 	if (code_.isEmpty()) return false;
 	
-	session_ = new RtSession(objectName() + "_session",0);
+    session_ = new RtSession(objectName() + "_session",this);
 	program_ = new QScriptProgram(code_,objectName() + "_code");
 	if (!session_->canEvaluate(code_))
 	{
@@ -35,7 +35,7 @@ void RtScriptJob::disarm_()
 	}
 	if (session_)
 	{
-		session_->detach();
+        //session_->detach();
 		delete session_;
 		session_ = 0;
 	}

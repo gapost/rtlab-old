@@ -6,6 +6,7 @@
 
 #include <QDebug>
 #include <QScriptEngine>
+#include <QScriptEngineDebugger>
 #include <QFile>
 #include <QTextStream>
 #include <QTimer>
@@ -20,10 +21,12 @@
 
 #define PROC_EVENTS_INTERVAL 250
 
-RtSession::RtSession(const QString& name, RtObject* parent) : RtObject(name,"session",parent)
+RtSession::RtSession(const QString& name, QObject* parent) : QObject(parent)
 {
+    setObjectName(name);
     engine_ = new QScriptEngine(this);
     engine_->setProcessEventsInterval ( PROC_EVENTS_INTERVAL );
+    debugger_ = new QScriptEngineDebugger(this);
     wait_timer_ = new QTimer(this);
     wait_timer_->setSingleShot(true);
 
@@ -50,7 +53,7 @@ RtSession::RtSession(const QString& name, RtObject* parent) : RtObject(name,"ses
 
     engine_->collectGarbage();
 
-    const QObjectList& chlist = root_.children();
+    const QObjectList& chlist = RtObject::root()->children();
 
     foreach(QObject* o, chlist)
 	{
@@ -77,6 +80,8 @@ RtSession::RtSession(const QString& name, RtObject* parent) : RtObject(name,"ses
 
 RtSession::~RtSession( void)
 {
+    //debugger_->detach();
+   // delete debugger_;
 	Q_ASSERT(!isEvaluating());
 }
 
@@ -264,13 +269,19 @@ RtObjectList RtSession::find(const QString& wc)
 }
 void RtSession::h5write(const QString& fname, const QString& comment)
 {
-    QString ret = root()->h5write(fname,comment);
+    QString ret = RtObject::root()->h5write(fname,comment);
     if (!ret.isNull())  engine_->currentContext()->throwError(ret);
 }
 void RtSession::beep()
 {
     os::beep();
 }
+void RtSession::debug(bool on)
+{
+    if (on) debugger_->attachTo(engine_);
+    else debugger_->detach();
+}
+
 QString RtSession::pwd()
 {
     return QDir::currentPath();
@@ -298,8 +309,8 @@ bool RtSession::isDir(const QString& name)
 }
 void RtSession::saveWindowState(const QString& fname)
 {
-    QByteArray ba_geometry = root()->mainWindow()->saveGeometry();
-    QByteArray ba_state = root()->mainWindow()->saveState();
+    QByteArray ba_geometry = RtObject::root()->mainWindow()->saveGeometry();
+    QByteArray ba_state = RtObject::root()->mainWindow()->saveState();
     QFile file(fname);
     if (file.open(QFile::WriteOnly | QFile::Truncate))
     {
@@ -317,8 +328,8 @@ void RtSession::restoreWindowState(const QString& fname)
     {
         QDataStream qin(&file);
         qin >> ba_geometry >> ba_state;
-        root()->mainWindow()->restoreGeometry(ba_geometry);
-        root()->mainWindow()->restoreState(ba_state);
+        RtObject::root()->mainWindow()->restoreGeometry(ba_geometry);
+        RtObject::root()->mainWindow()->restoreState(ba_state);
     }
     // if file could not open do nothing
     //else engine_->currentContext()->throwError("File could not be opened.");
@@ -338,7 +349,7 @@ QString RtSession::system(const QString &comm)
 
 void RtSession::status(const QString &msg, int tmo)
 {
-    RtMainWindow* wnd = root()->mainWindow();
+    RtMainWindow* wnd = RtObject::root()->mainWindow();
     wnd->statusBar()->showMessage(msg,tmo);
 }
 

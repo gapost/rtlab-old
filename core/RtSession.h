@@ -8,24 +8,26 @@
 #include <QScriptProgram>
 #include <QStringList>
 
+class QScriptEngineDebugger;
 class QScriptEngine;
 class QScriptContext;
 class QTimer;
 
 
-class RtSession : public RtObject
+class RtSession : public QObject
 {
 	Q_OBJECT
 
 protected:
     QScriptEngine* engine_;
+    QScriptEngineDebugger* debugger_;
 	QTimer* wait_timer_;
 	bool wait_aborted_;
     os::stopwatch watch_;
     static QScriptValue kill_func(QScriptContext *ctx, QScriptEngine *e);
 
 public:
-	RtSession(const QString& name, RtObject* parent = (RtObject*)(&root_));
+    RtSession(const QString& name, QObject* parent);
 	virtual ~RtSession(void);
 
 	bool canEvaluate(const QString&);
@@ -49,6 +51,8 @@ public slots:
     RtObjectList find(const QString& wildCard);
     void h5write(const QString& fname, const QString& comment);
     void beep();
+    // set debugging on (enable Qt script debugger)
+    void debug(bool on);
     // file and folder
     QString pwd();
     bool cd(const QString& path);

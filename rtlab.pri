@@ -6,6 +6,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     CONFIG += uitools
 }
 
+QT += scripttools
+
 ############## 3rd Party Libs for win32 ###############
 
 win32 {
