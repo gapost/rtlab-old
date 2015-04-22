@@ -21,10 +21,7 @@ public slots:
     }
 
 protected slots:
-    void deferedEvaluate()
-    {
-        exec(execCode_);
-    }
+    void deferedEvaluate();
 
 protected:
 	void exec(const QString& code);

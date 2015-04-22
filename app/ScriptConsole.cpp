@@ -31,10 +31,19 @@ ScriptConsole::ScriptConsole(const QString& startupScript)
 
 }
 
+void ScriptConsole::deferedEvaluate()
+{
+    session->print(QString("Running startup script %1 ...").arg(execCode_));
+    QFile fin(execCode_);
+    if (fin.open(QFile::ReadOnly))
+    {
+        session->evaluate(fin.readAll());
+    }
+}
+
 void ScriptConsole::exec(const QString& code)
 {
-    session->print(QString("Running startup script %1 ...").arg(code));
-    session->exec(code);
+    session->evaluate(code);
 }
 bool ScriptConsole::canEvaluate(const QString& code)
 {
