@@ -114,10 +114,8 @@ RtSession::~RtSession( void)
 
 void RtSession::evaluate(const QString& program)
 {
-	//if (code=="quit")
-    QScriptValue result = engine_->evaluate(program);
-
     if (logFile_) log_in(program);
+    QScriptValue result = engine_->evaluate(program);
 
     if (engine_->hasUncaughtException()) {
         QStringList backtrace = engine_->uncaughtExceptionBacktrace();

@@ -33,7 +33,8 @@ ScriptConsole::ScriptConsole(const QString& startupScript)
 
 void ScriptConsole::exec(const QString& code)
 {
-	session->evaluate(code);
+    session->print(QString("Running startup script %1 ...").arg(code));
+    session->exec(code);
 }
 bool ScriptConsole::canEvaluate(const QString& code)
 {

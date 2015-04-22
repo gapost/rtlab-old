@@ -21,16 +21,7 @@ int main(int argc, char *argv[])
 	RtAcquisition* dev = new RtAcquisition("dev",(RtObject*)RtObject::root());
 
     QString startup;
-    if (argc>1) {
-        QString fn(argv[1]);
-        QFile fin(fn);
-        if (fin.open(QFile::ReadOnly)) {
-            QTextStream qin(&fin);
-            startup = qin.readAll();
-        }
-    }
-
-
+    if (argc>1) startup = QString(argv[1]);
 
     MainWindow mainWin(startup);
     mainWin.show();

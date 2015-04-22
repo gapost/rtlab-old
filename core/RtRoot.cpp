@@ -81,7 +81,7 @@ void RtRoot::rtEvent(RtEvent *e)
         if (errorLog_) *errorLog_ <<
                QString("%1,%2,%3,%4,%5")
                    .arg(err.t.toString("dd.MM.yyyy"))
-                   .arg(err.t.toString("hh:mm:ss"))
+                   .arg(err.t.toString("hh:mm:ss.zzz"))
                    .arg(err.objectName)
                    .arg(err.type).arg(err.descr);
 
