@@ -66,11 +66,10 @@ void MainWindow::newFile()
 
 ScriptConsole *MainWindow::newConsole(const QString& startupScript)
 {
-	static int i = 1;
     ScriptConsole *child = createScriptConsole(startupScript);
-    QString name = QString("Console:%1").arg(i++);
-    child->setWindowTitle(name);
-    child->setObjectName(name);
+
+
+    child->setObjectName(child->windowTitle());
     child->show();
 
     return child;

@@ -47,7 +47,8 @@ HEADERS += \
     os_utils_win32.h \
     RtErrorLog.h \
     RtObjectBrowser.h \
-    RtObjectController.h
+    RtObjectController.h \
+    RtLogFile.h
 
 SOURCES += \
     RtObject.cpp \
@@ -72,7 +73,8 @@ SOURCES += \
     RtRootSerialize.cpp \
     RtErrorLog.cpp \
     RtObjectBrowser.cpp \
-    RtObjectController.cpp
+    RtObjectController.cpp \
+    RtLogFile.cpp
 
 greaterThan(QT_MAJOR_VERSION, 4): SOURCES += rtplotwidgetqwt6.cpp
 else: SOURCES += rtplotwidgetqwt5.cpp

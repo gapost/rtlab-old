@@ -3,6 +3,7 @@
 #include "RtTypes.h"
 #include "RtMainWindow.h"
 #include "os_utils.h"
+#include "RtLogFile.h"
 
 #include <QDebug>
 #include <QScriptEngine>
@@ -19,10 +20,30 @@
 #include <QStatusBar>
 
 
+
+QSet<int> RtSession::idx_set;
+
 #define PROC_EVENTS_INTERVAL 250
 
-RtSession::RtSession(const QString& name, QObject* parent) : QObject(parent)
+RtSession::RtSession(const QString& name, QObject* parent, bool not_indexed) : QObject(parent), idx_(0), logFile_(0)
 {
+    // find console index
+    if (!not_indexed) {
+        idx_ = 1;
+        while (idx_set.contains(idx_)) idx_++;
+        idx_set.insert(idx_);
+    }
+
+    // create log file
+    if (idx_) {
+        logFile_ = new RtLogFile(true,' ',this);
+        logFile_->open(RtLogFile::getDecoratedName(QString("console%1").arg(idx_)));
+
+        connect(this,SIGNAL(stdOut(QString)),this,SLOT(log_out(QString)));
+        connect(this,SIGNAL(stdErr(QString)),this,SLOT(log_err(QString)));
+    }
+
+
     setObjectName(name);
     engine_ = new QScriptEngine(this);
     engine_->setProcessEventsInterval ( PROC_EVENTS_INTERVAL );
@@ -83,12 +104,20 @@ RtSession::~RtSession( void)
     //debugger_->detach();
    // delete debugger_;
 	Q_ASSERT(!isEvaluating());
+
+    // close logfile, remove from index set
+    if (idx_) {
+        if (logFile_) delete logFile_;
+        idx_set.remove(idx_);
+    }
 }
 
 void RtSession::evaluate(const QString& program)
 {
 	//if (code=="quit")
     QScriptValue result = engine_->evaluate(program);
+
+    if (logFile_) log_in(program);
 
     if (engine_->hasUncaughtException()) {
         QStringList backtrace = engine_->uncaughtExceptionBacktrace();
@@ -351,6 +380,25 @@ void RtSession::status(const QString &msg, int tmo)
 {
     RtMainWindow* wnd = RtObject::root()->mainWindow();
     wnd->statusBar()->showMessage(msg,tmo);
+}
+
+void RtSession::log__(int fd, const QString &str)
+{
+    if (!logFile_) return;
+
+    QString pre;
+    if (fd==0) pre = ">> ";
+    else if (fd==2) pre = "err: ";
+
+    QStringList lines = str.split('\n', QString::SkipEmptyParts);
+    foreach(const QString& ln, lines)
+    {
+        QString buff(pre);
+        buff += ln;
+        //if (buff.endsWith('\n')) buff.remove(buff.size()-1,1);
+        *logFile_ << buff;
+    }
+
 }
 
 

@@ -7,11 +7,14 @@
 #include <QExplicitlySharedDataPointer>
 #include <QScriptProgram>
 #include <QStringList>
+#include <QSet>
 
 class QScriptEngineDebugger;
 class QScriptEngine;
 class QScriptContext;
 class QTimer;
+
+class RtLogFile;
 
 
 class RtSession : public QObject
@@ -24,11 +27,23 @@ protected:
 	QTimer* wait_timer_;
 	bool wait_aborted_;
     os::stopwatch watch_;
+
+    // console index = 1,2,3,...
+    // idx_ = 0 means not indexed, silent consoles
+    // not indexed consoles have no log file
+    int idx_;
+    // set contains actice index values
+    static QSet<int> idx_set;
+    RtLogFile* logFile_;
+
     static QScriptValue kill_func(QScriptContext *ctx, QScriptEngine *e);
 
 public:
-    RtSession(const QString& name, QObject* parent);
+
+    RtSession(const QString& name, QObject* parent, bool not_indexed = false);
 	virtual ~RtSession(void);
+
+    int index() const { return idx_; }
 
 	bool canEvaluate(const QString&);
 
@@ -78,6 +93,14 @@ public slots:
         return true;
 #endif
     }
+
+protected slots:
+    void log_in(const QString& str)  { log__(0,str); }
+    void log_out(const QString& str) { log__(1,str); }
+    void log_err(const QString& str) { log__(2,str); }
+
+protected:
+    void log__(int fd, const QString& str);
 
 
 

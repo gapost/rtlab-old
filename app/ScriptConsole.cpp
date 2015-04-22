@@ -14,7 +14,9 @@ ScriptConsole::ScriptConsole(const QString& startupScript)
 
 	setTabStopWidth ( 40 );
 
-    session = new RtSession("s1",this);
+    session = new RtSession("console",this);
+
+    setWindowTitle(QString("Console:%1").arg(session->index()));
 		
 	connect(session,SIGNAL(stdOut(const QString&)),this,SLOT(stdOut(const QString&)));
 	connect(session,SIGNAL(stdErr(const QString&)),this,SLOT(stdErr(const QString&)));
