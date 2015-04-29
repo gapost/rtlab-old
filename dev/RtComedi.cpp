@@ -132,6 +132,7 @@ void Rt6221device::setOnline(bool on)
         if (dev_ && dev_->isOpen())
         {
             subdev_ = dev_->dev()->getSubDevice(idx_);
+            int nch = channels_.size();
             bool ok = true;
             if (subdev_)
             {
@@ -144,6 +145,12 @@ void Rt6221device::setOnline(bool on)
                 case CountEdges:
                     ((ni6221::ctr*)subdev_)->setup_count_edges();
                     ((ni6221::ctr*)subdev_)->arm();
+                    break;
+                case DigitalInput:
+                    for(int i=0; i<nch; i++) ((ni6221::dio*)subdev_)->setup(channel_no_[i],false);
+                    break;
+                case DigitalOutput:
+                    for(int i=0; i<nch; i++) ((ni6221::dio*)subdev_)->setup(channel_no_[i],true);
                     break;
                 default:
                     break;
